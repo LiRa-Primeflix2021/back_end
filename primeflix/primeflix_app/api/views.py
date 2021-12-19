@@ -52,7 +52,16 @@ def set_order_init():
                 order = Order()
                 order.customer = c
                 order.save()
-                
+
+
+# //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+  
+# def payment(order):
+    
+     
+
+               
                 
 
 # //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -167,40 +176,47 @@ class OrderListPaid(generics.ListAPIView):
 
     def get_queryset(self):
         pk = self.kwargs['pk']
-        temp_order = Order.objects.get(order_user=pk, order_paid=False)
-        if (self.request.user != temp_order.order_user):
-            raise ValidationError("denied")
-        return Order.objects.filter(order_user=pk, order_paid=True)
+        queryset_order = Order.objects.filter(order_user=pk, order_paid=True)
+        if queryset_order.exists():
+            if (self.request.user != queryset_order[0].order_user):
+                raise ValidationError("denied")
+        if queryset_order.exists():
+            return queryset_order
+        else:
+            raise ValidationError("no order paid")
+            return Order.objects.filter(order_user=pk, order_paid=True)
     
     
 class OrderLines(generics.ListCreateAPIView):
     permission_classes = [IsAuthenticated]
-    # permission_classes = [IsAuthenticated]
     serializer_class = OrderLineSerializer
     
     def get_queryset(self):
         pk = self.kwargs['pk']
         
-        temp_order = Order.objects.get(order_user=pk, order_paid=False)
-        
-        if (self.request.user != temp_order.order_user):
-            raise ValidationError("denied")
-        
-        if temp_order:
-            return OrderLine.objects.filter(orderLine_user=pk, order=temp_order) 
+        queryset_order = Order.objects.filter(order_user=pk, order_paid=False)
+        if queryset_order.exists():
+            if (self.request.user != queryset_order[0].order_user):
+                raise ValidationError("denied")
+
+        if queryset_order.exists():
+            return OrderLine.objects.filter(orderLine_user=pk, order=queryset_order[0]) 
         else:
+            raise ValidationError("denied")
             return ('Error : OrderLine doesn t exist in database')
             
     def perform_create(self, serializer):
             pk = self.kwargs['pk']
-            temp_order = Order.objects.get(order_user=pk, order_paid=False)
-        
-            if (self.request.user != temp_order.order_user):
-                raise ValidationError("denied")
+            queryset_order = Order.objects.filter(order_user=pk, order_paid=False)
+           
+            if queryset_order.exists():
+            
+                if (self.request.user != queryset_order[0].order_user):
+                    raise ValidationError("denied")
             
             # temp_customer = Customer.objects.get(pk=pk)
-            temp_order = Order.objects.get(pk=pk, order_paid=False)
-            serializer.save(order=temp_order, orderLine_user=temp_order.order_user)
+                temp_order = Order.objects.filter(order_user=pk, order_paid=False)
+                serializer.save(order=temp_order[0], orderLine_user=temp_order[0].order_user)
               
  
 class OrderLineDetails(generics.RetrieveUpdateDestroyAPIView):
@@ -254,34 +270,77 @@ class OrderDetails(APIView):
     def get(self, request, pk):
         pk = self.kwargs['pk']
         
-        order_query = Order.objects.get(order_user=pk)        
-        if (self.request.user != order_query.order_user):
-            raise ValidationError("you can't access this page")
-        
-        try:
-            temp_order = Order.objects.get(order_user=pk, order_paid=False)
-        except Order.DoesNotExist:
-            return Response('Error : Order doesn\'t exist in database', status=status.HTTP_404_NOT_FOUND)
-        
-        serializer = OrderSerializer(temp_order)
-        
-        print(*serializer.data)
-        
-        print(type(self.kwargs))
-        print(self.kwargs)
-        print(temp_order.date_ordered)
-        for key, value in serializer.data.items():
-            print("'''''''''''''''''''''''''''''''''''''''''''''")
-            print(key)
-            print("'''''''''''''''''''''''''''''''''''''''''''''")
-            print(value)
-        
-        
-        return Response(serializer.data) 
+        order_query = Order.objects.filter(order_user=pk, order_paid=False)
+        if order_query.exists():      
+            if (self.request.user != order_query[0].order_user):
+                raise ValidationError("you can't access this page")
+            
+            try:
+                temp_order = Order.objects.get(order_user=pk, order_paid=False)
+            except Order.DoesNotExist:
+                return Response('Error : Order doesn\'t exist in database', status=status.HTTP_404_NOT_FOUND)
+            
+            serializer = OrderSerializer(temp_order)
+            
+            print(*serializer.data)
+            
+            print(type(self.kwargs))
+            print(self.kwargs)
+            print(temp_order.date_ordered)
+            for key, value in serializer.data.items():
+                print("'''''''''''''''''''''''''''''''''''''''''''''")
+                print(key)
+                print("'''''''''''''''''''''''''''''''''''''''''''''")
+                print(value)
+            
 
+            return Response(serializer.data) 
+
+    def put(self, request, pk):
+        pk = self.kwargs['pk']
+        order = Order.objects.get(order_user=pk)
+        # order.order_paid = True
+        # order.save()
+        
+        
+        print (request)
+        print (request.data)
+        print (type(request.data))
+        print (request.data.items())
+        
+        
+            
+        dataT = {"order_paid" : "true"}
+        serializer = OrderSerializer(order, data=dataT)    
+        
+        if serializer.is_valid():
+            print (serializer)
+            serializer.save()
+            return Response(serializer.data)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 # //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    
+# def perform_update(self, serializer):
+#         pk = self.kwargs['pk']
+#         # serializer.save()
+        
+#         temp_orderline = OrderLine.objects.get(pk=pk)
+
+#         if (self.request.user != temp_orderline.order.order_user):
+#             raise ValidationError("denied")
+                
+#         # temp_order = Order.objects.filter(pk=temp_orderline.order.id, order_paid=False)
+#         temp_order = Order.objects.get(pk=temp_orderline.order.id)
+        
+#         if ((temp_orderline.order == temp_order) and (temp_orderline.order.order_paid == False)):
+#             serializer.save()
+
+#         else:
+#             raise APIException("Order paid")
+        
+
+# //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+     
     
 class CategoryList(generics.ListAPIView):
     serializer_class = CategorySerializer
