@@ -111,8 +111,10 @@ class Order(models.Model):
 	order_paid = models.BooleanField(default=False)
 	transaction_id = models.CharField(max_length=100, blank=True, null=True)
 	order_user = models.ForeignKey(User, on_delete=models.SET_NULL, null=True)
-
-	def get_total_order(self):
+	# order_amount = models.PositiveIntegerField(default=0, null=True, blank=True)
+ 
+	@property
+	def total_order(self):
 		orderLines = OrderLine.objects.filter(order=self)
 		if orderLines.exists():
 			total = 0
@@ -123,7 +125,7 @@ class Order(models.Model):
 			return total
 
 	def __str__(self):
-		return str(self.id)
+		return str(self.id) + " " + str(self.order_user)
 
 
 class OrderLine(models.Model):
@@ -133,16 +135,21 @@ class OrderLine(models.Model):
 	order = models.ForeignKey(Order, on_delete=models.SET_NULL, null=True, related_name="order_lines")
 	# customer = models.ForeignKey(Customer, on_delete=models.SET_NULL, null=True)
 	orderLine_user = models.ForeignKey(User, on_delete=models.SET_NULL, null=True)
+	note = models.CharField(max_length=300, null=True, blank=True)
+	# orderLine_amount = models.PositiveIntegerField(default=0, null=True, blank=True)
     
 	@property
 	def get_total_orderLine(self):
 		if (self.quantity != 0):
+			# temp_product = Product.objects.get(pk=self.product.id)
 			total = self.product.price * self.quantity
-			return str(total)
+			# total = temp_product.price * self.quantity
+			return total
 		else: 
-			return str(0) 
+			return 0 
 
 	def __str__(self):
+		return  str(self.id) + " -  for user : " + str(self.orderLine_user) + " -   from order : " + str(self.order)
 		return str(self.order) + str(self.orderLine_user) + str(self.order.order_user) + str(self.product) + " : " + str(self.product.price) + "€  * " + str(self.quantity) + " = " + self.get_total_orderLine + " €"
 
 

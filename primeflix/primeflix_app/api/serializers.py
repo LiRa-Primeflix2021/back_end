@@ -75,18 +75,18 @@ class CustomerSerializer(serializers.ModelSerializer):
 
 
 class OrderLineSerializer(serializers.ModelSerializer):
-    customer = serializers.StringRelatedField(read_only=True)
+    # customer = serializers.StringRelatedField(read_only=True)
     order = serializers.StringRelatedField(read_only=True)
 
     class Meta:
         model = OrderLine
         fields = "__all__"
-        # exclude = ('customer',)
+        # exclude = ('orderLine_user',)
 
 
 class OrderSerializer(serializers.ModelSerializer):
     order_lines = OrderLineSerializer(many=True, read_only=True)
-    customer = serializers.StringRelatedField(read_only=True)
+    # customer = serializers.StringRelatedField(read_only=True)
         
     class Meta:
         model = Order
@@ -94,7 +94,7 @@ class OrderSerializer(serializers.ModelSerializer):
         # exclude = ('customer',)
     
 class ShippingAddressSerializer(serializers.ModelSerializer):
-    customer = CustomerSerializer(read_only=True)
+    # customer = CustomerSerializer(read_only=True)
     order = OrderSerializer(many=True, read_only=True)
         
     class Meta:

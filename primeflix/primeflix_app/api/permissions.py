@@ -25,13 +25,13 @@ class IsReviewUserOrReadOnly(permissions.BasePermission):
         
         
         
-class IsOrderUser(permissions.BasePermission):
+class IsOrderLineUser(permissions.BasePermission):
     def has_object_permission(self, request, view, obj):
-        if (request.method in permissions.SAFE_METHODS):
+        if (request.method in permissions.SAFE_ACCESS):
             return True
         else:
             # return obj.review_user == request.user or request.user.is_staff
-            return obj.order_user == request.user and request.user.is_staff
+            return obj.orderLine_user == request.user 
     # def has_object_permission(self, request, view, obj):
 
     #     if (request.method in permissions.SAFE_METHODS):
