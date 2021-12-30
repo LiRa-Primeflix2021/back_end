@@ -17,13 +17,15 @@ class ProductSerializer(serializers.ModelSerializer):
     category = serializers.StringRelatedField(read_only=True)
     theme = serializers.StringRelatedField(read_only=True)
     
+    
     class Meta:
         model = Product
-        # fields = "__all__"
+        fields = "__all__"
         # fields = ['id', 'name', 'description', 'active'] 
         # exclude = ['active']
-        exclude = ('average_rating','number_ratings',)
-    
+        # exclude = ('average_rating','number_ratings',)
+        read_only_fields = ('average_rating', 'number_ratings')
+        
     def get_len_title(self, object):
         return len(object.title)
         
@@ -82,7 +84,7 @@ class OrderLineSerializer(serializers.ModelSerializer):
         model = OrderLine
         fields = "__all__"
         # exclude = ('orderLine_user',)
-
+    
 
 class OrderSerializer(serializers.ModelSerializer):
     order_lines = OrderLineSerializer(many=True, read_only=True)

@@ -7,7 +7,8 @@ class RegistrationSerializer(serializers.ModelSerializer):
     
     class Meta:
         model = User
-        fields = ['username', 'email', 'password', 'password2']
+        # fields = ['username', 'email', 'password', 'password2']
+        fields = ['username', 'password', 'password2']
         extra_kwargs = {
             'password' : {'write_only' : True}
         }
@@ -19,10 +20,11 @@ class RegistrationSerializer(serializers.ModelSerializer):
         if (password != password2):
             raise serializers.ValidationError({'error' : 'passwords should be same'})
         
-        if User.objects.filter(email=self.validated_data['email']).exists():
-            raise serializers.ValidationError({'error' : 'email already exists'})
+        # if User.objects.filter(email=self.validated_data['email']).exists():
+        #     raise serializers.ValidationError({'error' : 'email already exists'})
         
-        account = User(email=self.validated_data['email'], username=self.validated_data['username'])
+        # account = User(email=self.validated_data['email'], username=self.validated_data['username'])
+        account = User(username=self.validated_data['username'])
         account.set_password(password)
         account.save()
         

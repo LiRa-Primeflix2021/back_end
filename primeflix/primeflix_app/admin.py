@@ -25,21 +25,30 @@ class ProductAdmin(admin.ModelAdmin):
             csv_file = request.FILES["csv_upload"]
             
             if not csv_file.name.endswith('.csv'):
-                messages.warning(request, 'The wrong file type was uploaded')
+                messages.warning(request, 'upload csv file')
                 return HttpResponseRedirect(request.path_info)
             
-            file_data = csv_file.read().decode("utf-8")
+            file_data = csv_file.read().decode("latin-1")
             csv_data = file_data.split("\n")
-
-            for x in csv_data:
-                fields = x.split(",")
             
+            for x in csv_data:
+                fields = x.split("|")
                 created = Product.objects.update_or_create(
                     category = Category.objects.get(pk=int(fields[0])),
                     theme = Theme.objects.get(id=int(fields[1])),
                     title = fields[2],
-                    description = fields[3],
-                    price = float(fields[4]),
+                    director = fields[3],
+                    description = fields[4],
+                    year = int(fields[5]),
+                    duration = fields[6],
+                    trailer = fields[7],
+                    season = fields[8],
+                    image_a = fields[9],
+                    image_b = fields[10],
+                    quantity = int(fields[11]),
+                    price = float(fields[12]),
+                    in_stock = bool(fields[13]),
+                    is_active = bool(fields[14]),
                     )
             url = reverse('admin:index')
             return HttpResponseRedirect(url)

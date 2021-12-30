@@ -7,15 +7,6 @@ from datetime import datetime
 
 # Create your models here.
 
-# class StreamPlatformList(models.Model):
-#     name = models.CharField(max_length=30)
-#     about = models.CharField(max_length=150)
-#     website = models.URLField(max_length=100)
-
-#     def __str__(self):
-#         return self.name
-
-
 class Category(models.Model):
     name = models.CharField(max_length=255)
             
@@ -45,6 +36,7 @@ class Product(models.Model):
     image_b = models.CharField(max_length=255, blank=True)
     quantity = models.PositiveIntegerField(default=0)
     price = models.DecimalField(max_digits=4, decimal_places=2, default=0)
+    # discount = 
     in_stock = models.BooleanField(default=False)
     is_active = models.BooleanField(default=False)
     average_rating = models.FloatField(default=0)
@@ -92,7 +84,7 @@ class Review(models.Model):
     review_user = models.ForeignKey(User, on_delete=models.CASCADE)
     
     def __str__(self):
-        return str(self.rating) + "/5 for the product : " + self.product.title + " | written by : " + str(self.review_user)
+        return str(self.rating) + "/5 for product : " + self.product.title + " | written by : " + str(self.review_user)
     
 
 class Customer(models.Model):

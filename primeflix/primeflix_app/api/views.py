@@ -16,11 +16,14 @@ from stripe.api_resources import checkout
 from primeflix_app.models import User, Category, Theme, Product, Review, Customer, Order, OrderLine, ShippingAddress
 from primeflix_app.api.serializers import CategorySerializer, ThemeSerializer, ProductSerializer, ReviewSerializer, CustomerSerializer, OrderSerializer, OrderLineSerializer, ShippingAddressSerializer
 from primeflix_app.api.permissions import IsAdminOrReadyOnly, IsReviewUserOrReadOnly, IsOrderLineUser
-from django.urls import reverse
 from django.dispatch import receiver
-
+from django.shortcuts import render, redirect
+from django.urls import reverse
+from django.http import JsonResponse
+import os
 import stripe
 
+stripe.api_key = settings.STRIPE_SECRET_KEY
 
 # //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -67,26 +70,44 @@ def set_order_init():
 # //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 
-stripe.api_key = settings.STRIPE_SECRET_KEY
+@api_view(['GET', 'POST'])
+def CreateCheckoutSessionView(request):
+    permission_classes = [IsAuthenticated]
 
-class CreateCheckoutSessionView(APIView):
-    def post(self, request, *args, **kwargs):
-        # YOUR_DOMAIN = "http://127.0.0.1:8000"
-        checkout_session = stripe.checkout.Session.create(
-            payment_method_types = ['card'],
-            line_items=[
-                {
-                    # Provide the exact Price ID (for example, pr_1234) of the product you want to sell
-                    'price': '{{PRICE_ID}}',
-                    'quantity': 1,
-                },
-            ],
-            mode='payment',
-            # success_url=YOUR_DOMAIN + '/success/',
-            # cancel_url=YOUR_DOMAIN + '/cancel/',
-        )
+    
+    # if (request.user != queryset_order[0].order_user):
+    #             raise ValidationError("denied")
+    
+    # get order from instance user
+    temp_order = Order.objects.get(order_user=request.user, order_paid=False)
+    queryset_Orderlines = OrderLine.objects.filter(orderLine_user=request.user, order=temp_order)
+    
+    if queryset_Orderlines.exists():
         
-        return JsonResponse({'id' : checkout_session.id})
+        if (request.method == 'POST'): 
+            temp_line_items = []
+            
+            for orderline in queryset_Orderlines:
+                temp_line_items.append({'price_data': {'currency': 'eur','product_data': {'name': orderline.product.title,},'unit_amount': int((orderline.product.price)*100),},'quantity': orderline.quantity,},)
+            
+
+            
+            session = stripe.checkout.Session.create(
+                # for queryset in queryset_Orderlines:
+                # print(type(queryset))
+                line_items=temp_line_items,
+                mode='payment',
+                success_url='https://127.0.0.1:8000/store/product/list/',
+                cancel_url='https://www.luga.be',
+            )
+            print(session)
+          
+            
+        return HttpResponse(session.url, session.payment_status)
+        return HttpResponse(session.url)
+
+    return HttpResponse("no product in cart")
+
 
 
 # //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -96,7 +117,7 @@ class ReviewList(generics.ListAPIView):
     # queryset = Review.objects.all()
     serializer_class = ReviewSerializer
     # permission_classes = [IsAuthenticated]
-    permission_classes = [IsAuthenticatedOrReadOnly]
+    # permission_classes = [IsAuthenticatedOrReadOnly]
     
     def get_queryset(self):
         pk = self.kwargs['pk']
@@ -126,9 +147,17 @@ class ReviewCreate(generics.CreateAPIView):
             temp_product.average_rating = ((temp_product.average_rating * temp_product.number_ratings ) + float(serializer.validated_data['rating'])) / float(temp_product.number_ratings + 1) 
 
         temp_product.number_ratings = temp_product.number_ratings + 1
+        
         temp_product.save()  
-        serializer.save(product=temp_product, review_user=temp_review_user)
+        
+          
+        if(serializer.is_valid()):
             
+            serializer.validated_data['product'] = temp_product        
+            serializer.validated_data['active'] = True
+            serializer.save(product=temp_product, review_user=temp_review_user)    
+        else:
+            return Response(serializer.errors)   
     
 class ReviewDetails(generics.RetrieveUpdateDestroyAPIView):
     queryset = Review.objects.all()
@@ -163,17 +192,26 @@ class ReviewDetails(generics.RetrieveUpdateDestroyAPIView):
             temp_product.average_rating = temp_review.rating
              
         temp_product.save()  
-        serializer.save(product=temp_product)
+        
+        if(serializer.is_valid()):
+            
+            serializer.validated_data['product'] = temp_product        
+            serializer.validated_data['active'] = True
+            serializer.save(product=temp_product)     
+        else:
+            return Response(serializer.errors) 
+        
+        
 
 
 # //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 # Orders and Orderlines management 
 # //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
       
-class OrderListPaid(generics.ListAPIView):
+class OrdersPaid(generics.ListAPIView):
     permission_classes = [IsAuthenticated]
     serializer_class = OrderSerializer    
-    
 
     def get_queryset(self):
         # pk = self.kwargs['pk']
@@ -187,13 +225,12 @@ class OrderListPaid(generics.ListAPIView):
             raise ValidationError("no order paid")
     
 
-#    
+   
 class OrderLines(generics.ListCreateAPIView):
     permission_classes = [IsAuthenticated]
     serializer_class = OrderLineSerializer
     
     def get_queryset(self):
-        # pk = self.kwargs['pk']
         
         queryset_order = Order.objects.filter(order_user=self.request.user, order_paid=False)
         if queryset_order.exists():
@@ -201,11 +238,9 @@ class OrderLines(generics.ListCreateAPIView):
                 raise ValidationError("denied")
 
         if queryset_order.exists():
-            # return queryset_order
             return OrderLine.objects.filter(orderLine_user=self.request.user, order=queryset_order[0])
         else:
             raise ValidationError("denied")
-            return ('Error : OrderLine doesn t exist in database')
             
     # def perform_create(self, serializer):
     #         # pk = self.kwargs['pk']
@@ -219,24 +254,20 @@ class OrderLines(generics.ListCreateAPIView):
     #             orderLine_queryset = OrderLine.objects.filter(product=serializer.validated_data['product'], orderLine_user=self.request.user, order=queryset_order[0])
                 
     #             if orderLine_queryset.exists():    
-    #                 temp_orderline = orderLine_queryset[0]
-                    
-                    
-            
-                        
+    #                 temp_orderline = orderLine_queryset[0]                                
     #                 temp_orderline.quantity = temp_orderline.quantity + serializer.validated_data['quantity']
     #                 temp_orderline.save()
     #             else:
     #                 serializer.save(order=queryset_order[0], orderLine_user=queryset_order[0].order_user)
 
- 
+
+    
 class OrderLineDetails(generics.RetrieveUpdateDestroyAPIView):
-    queryset = OrderLine.objects.all()
     permission_classes = [IsOrderLineUser]
     serializer_class = OrderLineSerializer 
-  
+    queryset = OrderLine.objects.all()
+    
     def delete(self, request, *args, **kwargs):
-        # pk = self.kwargs['pk']
         temp_orderline = OrderLine.objects.get(pk=self.request.user)
 
         if (self.request.user != temp_orderline.order.order_user):
@@ -472,7 +503,9 @@ class CustomerList(APIView):
 # //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
                 
 class ProductList(APIView):
-    permission_classes = [IsAdminOrReadyOnly]
+    # permission_classes = [IsOrderLineUser]
+    permission_classes = [IsAuthenticatedOrReadOnly]
+
 
     def get(self, request):
         products = Product.objects.all()
@@ -482,6 +515,88 @@ class ProductList(APIView):
         set_order_init()
         
         return Response(serializer.data)
+    
+    def post(self, request):
+        temp_product = Product.objects.get(pk=int(request.data['product_id']))
+        queryset_temp_order = Order.objects.filter(order_user=request.user, order_paid=False)
+        # print(request.data)
+        if request.data['quantity'] < 1:
+            raise ValidationError("Quantity < 1")
+        
+
+        
+        if queryset_temp_order.exists():
+                    
+            temp_order = queryset_temp_order[0]
+            
+            # print(temp_order)
+            # print(temp_product)
+            queryset_temp_orderline = OrderLine.objects.filter(product=temp_product, order=temp_order)
+            
+            print(queryset_temp_orderline.exists())
+            # temp_orderline = queryset_temp_orderline[0]
+            # print(temp_orderline)
+            
+            if queryset_temp_orderline.exists():
+                
+                temp_orderline = queryset_temp_orderline[0]
+                
+                serializer = OrderLineSerializer(temp_orderline, data=request.data)
+                if(serializer.is_valid()):
+                    
+                    
+                    # delta_quantity = serializer.validated_data['quantity'] - temp_orderline.quantity
+                
+                    temp_quantity = serializer.validated_data['quantity'] + temp_orderline.quantity
+                    # if temp_product.quantity <= serializer.validated_data['quantity']:
+                    if temp_product.quantity <= temp_quantity:
+                        
+                        serializer.validated_data['quantity'] = temp_product.quantity
+                        serializer.validated_data['note']= str(serializer.validated_data['quantity']) + " products left. Quantity set to your order"
+                        # print(serializer.validated_data['note'])
+                         
+                    else:
+                        serializer.validated_data['quantity'] = temp_quantity
+                        serializer.validated_data['note']= ""
+
+
+                    # print(serializer.data)
+                    serializer.validated_data['orderLine_user'] = request.user
+                    serializer.validated_data['product'] = temp_product
+                    serializer.validated_data['order'] = temp_order            
+                    serializer.save()
+                    return Response(serializer.data)
+                
+                else:
+                    return Response(serializer.errors) 
+            
+            else:
+                print(temp_product)
+                print(request.data)
+                temp_orderline = OrderLine()
+                               
+                serializer = OrderLineSerializer(temp_orderline, data=request.data)
+                if(serializer.is_valid()):
+                    
+                    if temp_product.quantity <= serializer.validated_data['quantity']:
+                        
+                        serializer.validated_data['quantity'] = temp_product.quantity
+                        serializer.validated_data['note']= str(serializer.validated_data['quantity']) + " products left. Quantity set to your order"
+                        # print(serializer.validated_data['note'])
+                    else:
+                        serializer.validated_data['note']= ""
+                        
+                    serializer.validated_data['orderLine_user'] = request.user
+                    serializer.validated_data['product'] = temp_product
+                    serializer.validated_data['order'] = temp_order            
+                    serializer.save()
+                    return Response(serializer.data)
+                else:
+                    return Response(serializer.errors) 
+        
+    
+        else:
+            raise APIException("Order paid")
 
     # def post(self, request):
     #     serializer = ProductSerializer(data=request.data)
@@ -528,7 +643,7 @@ class ProductList(APIView):
 
 
 class ProductDetails(APIView):
-    # permission_classes = [IsAdminOrReadyOnly]
+    permission_classes = [IsAuthenticatedOrReadOnly]
     
     def get(self, request, pk):
         try:
@@ -557,10 +672,9 @@ class ProductDetails(APIView):
         temp_product = Product.objects.get(pk=pk)
         queryset_temp_order = Order.objects.filter(order_user=request.user, order_paid=False)
         # print(request.data)
-        if request.data['quantity'] < 1:
-            raise ValidationError("Quantity < 1")
         
-
+        if (int(request.data['quantity'])) < 1:
+            raise ValidationError("Quantity < 1")
         
         if queryset_temp_order.exists():
                     
@@ -584,9 +698,10 @@ class ProductDetails(APIView):
                     
                     # delta_quantity = serializer.validated_data['quantity'] - temp_orderline.quantity
                 
-
-                    if temp_product.quantity <= serializer.validated_data['quantity']:
-                        
+                    temp_quantity = serializer.validated_data['quantity'] + temp_orderline.quantity
+                    # if temp_product.quantity <= serializer.validated_data['quantity']:
+                    if temp_product.quantity <= temp_quantity:
+                                                
                         serializer.validated_data['quantity'] = temp_product.quantity
                         serializer.validated_data['note']= str(serializer.validated_data['quantity']) + " products left. Quantity set to your order"
                         # print(serializer.validated_data['note'])
