@@ -22,6 +22,11 @@ from django.urls import reverse
 from django.http import JsonResponse
 import os
 import stripe
+import json
+import datetime
+
+
+from django.views.decorators.csrf import csrf_exempt
 
 stripe.api_key = settings.STRIPE_SECRET_KEY
 
@@ -42,29 +47,21 @@ def refresh_ratings():
                 p.average_rating = average_rating 
                 p.save()
                         
-def set_order_init():  
-    customers = Customer.objects.all()
+# def set_order_init():  
+#     customers = Customer.objects.all()
     
-    if customers.exists():
-        for c in customers:
-            orders = Order.objects.filter(customer=c, order_paid=False)
-            if orders.exists():
-                pass
-            else:
-                print(type(c.id))
-                order = Order()
-                order.customer = c
-                order.save()
+#     if customers.exists():
+#         for c in customers:
+#             orders = Order.objects.filter(customer=c, order_paid=False)
+#             if orders.exists():
+#                 pass
+#             else:
+#                 print(type(c.id))
+#                 order = Order()
+#                 order.customer = c
+#                 order.save()
 
-
-# //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-  
-# def payment(order):
-    
-     
-
-               
+         
                 
 
 # //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -74,13 +71,16 @@ def set_order_init():
 def CreateCheckoutSessionView(request):
     permission_classes = [IsAuthenticated]
 
-    
+    print(request.data)
+    print(request)
     # if (request.user != queryset_order[0].order_user):
     #             raise ValidationError("denied")
-    
-    # get order from instance user
+
     temp_order = Order.objects.get(order_user=request.user, order_paid=False)
     queryset_Orderlines = OrderLine.objects.filter(orderLine_user=request.user, order=temp_order)
+   
+    if (request.user != temp_order.order_user):
+                raise ValidationError("denied")
     
     if queryset_Orderlines.exists():
         
@@ -88,26 +88,152 @@ def CreateCheckoutSessionView(request):
             temp_line_items = []
             
             for orderline in queryset_Orderlines:
-                temp_line_items.append({'price_data': {'currency': 'eur','product_data': {'name': orderline.product.title,},'unit_amount': int((orderline.product.price)*100),},'quantity': orderline.quantity,},)
-            
+                temp_line_items.append({'price_data': {'currency': 'eur', 'product_data': {'name': orderline.product.title,},'unit_amount': int((orderline.product.price)*100),},'quantity': orderline.quantity,},)
 
-            
             session = stripe.checkout.Session.create(
                 # for queryset in queryset_Orderlines:
                 # print(type(queryset))
                 line_items=temp_line_items,
+                metadata={
+                "customer": temp_order.id
+                },
                 mode='payment',
-                success_url='https://127.0.0.1:8000/store/product/list/',
-                cancel_url='https://www.luga.be',
+                success_url= request.data['success_url'],
+                # success_url='http://127.0.0.1:8000/store/product/list/',
+                # success_url='https://www.aginteriors.be',
+                # cancel_url='https://www.luga.be',
+                # cancel_url='http://127.0.0.1:8000/store/order/',
+                cancel_url=request.data['cancel_url'],
             )
             print(session)
-          
+            print(session.payment_intent)
             
+            
+            temp_order.payment_intent = session.payment_intent
+            temp_order.save()
+            # print(temp_order.payment_intent + ' HOLA ')
+          
         return HttpResponse(session.url, session.payment_status)
-        return HttpResponse(session.url)
 
     return HttpResponse("no product in cart")
 
+
+
+# //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+
+@csrf_exempt
+def stripe_webhook(request):
+    payload = request.body
+    sig_header = request.META['HTTP_STRIPE_SIGNATURE']
+    event = None
+
+    try:
+        event = stripe.Webhook.construct_event(
+            payload, sig_header, settings.STRIPE_WEBHOOK_SECRET
+        )
+    except ValueError as e:
+        # Invalid payload
+        return HttpResponse(status=400)
+    except stripe.error.SignatureVerificationError as e:
+        # Invalid signature
+        return HttpResponse(status=400)
+
+    # Handle the checkout.session.completed event
+    
+    if event['type'] == 'payment_intent.payment_failed':
+        
+        print("Alléluia 4")
+        # print(payload)
+        # intent = event['data']['object']
+        # print(intent['customer'])
+        # stripe_customer_id = intent["customer"]
+        # stripe_customer = stripe.Customer.retrieve(stripe_customer_id)
+
+        # customer_email = stripe_customer['email']
+        # product_id = intent["metadata"]["product_id"]
+
+        # product = Product.objects.get(id=product_id)
+
+
+    # if event['type'] == 'checkout.session.completed':
+    #     # session = event['data']['object']
+
+    #     # customer_email = session["customer_details"]["email"]
+    #     # product_id = session["metadata"]["product_id"]
+
+    #     # product = Product.objects.get(id=product_id)
+    #     print("Alléluia 1")
+        
+    elif event['type'] == 'checkout.session.completed':
+        
+        session = event['data']['object']
+        customer_email = session["customer_details"]["email"]
+        payment_intent = session["payment_intent"]
+        print("Alléluia A")
+        print(customer_email)
+        print("Alléluia B")
+        print(payment_intent)
+        print("Alléluia C")
+        print("Alléluia 2")
+        intent = event['data']['object']
+        print(intent['customer'])
+        print("Alléluia 2 bis")
+        
+        temp_order = Order.objects.get(payment_intent=payment_intent)
+        queryset = Order.objects.filter(order_user=temp_order.order_user)
+        queryset.count()
+        
+        if temp_order.payment_intent == payment_intent:
+            temp_order.order_paid = True
+            temp_order.transaction_id=queryset.count()
+            temp_order.date_ordered=datetime.datetime.now()
+            temp_order.save() 
+            new_order = Order(order_user=temp_order.order_user)
+            new_order.save() 
+            
+            queryset_orderlines = OrderLine.objects.filter(order = temp_order)
+            for orderline in queryset_orderlines:
+                temp_product = Product.objects.get(pk=orderline.product.id)
+                temp_product.quantity = temp_product.quantity - orderline.quantity
+                temp_product.save()
+            
+            print('mega cool')
+    else:
+    # elif event["type"] == "payment_intent.succeeded":
+        
+        print("Alléluia 3")
+
+    return HttpResponse(status=200)
+
+
+# @csrf_exempt
+# def my_webhook_view(request):
+#   payload = request.body
+#   event = None
+
+#   try:
+#     event = stripe.Event.construct_from(
+#       json.loads(payload), stripe.api_key
+#     )
+#   except ValueError as e:
+#     # Invalid payload
+#     return HttpResponse(status=400)
+
+#   # Handle the event
+#   if event.type == 'payment_intent.succeeded':
+#     payment_intent = event.data.object # contains a stripe.PaymentIntent
+#     # Then define and call a method to handle the successful payment intent.
+#     # handle_payment_intent_succeeded(payment_intent)
+#   elif event.type == 'payment_method.attached':
+#     payment_method = event.data.object # contains a stripe.PaymentMethod
+#     # Then define and call a method to handle the successful attachment of a PaymentMethod.
+#     # handle_payment_method_attached(payment_method)
+#   # ... handle other event types
+#   else:
+#     print('Unhandled event type {}'.format(event.type))
+
+#   return HttpResponse(status=200)
 
 
 # //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -512,7 +638,6 @@ class ProductList(APIView):
         serializer = ProductSerializer(products, many=True)
         
         refresh_ratings()
-        set_order_init()
         
         return Response(serializer.data)
     

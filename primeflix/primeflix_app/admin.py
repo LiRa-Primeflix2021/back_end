@@ -33,23 +33,46 @@ class ProductAdmin(admin.ModelAdmin):
             
             for x in csv_data:
                 fields = x.split("|")
-                created = Product.objects.update_or_create(
-                    category = Category.objects.get(pk=int(fields[0])),
-                    theme = Theme.objects.get(id=int(fields[1])),
-                    title = fields[2],
-                    director = fields[3],
-                    description = fields[4],
-                    year = int(fields[5]),
-                    duration = fields[6],
-                    trailer = fields[7],
-                    season = fields[8],
-                    image_a = fields[9],
-                    image_b = fields[10],
-                    quantity = int(fields[11]),
-                    price = float(fields[12]),
-                    in_stock = bool(fields[13]),
-                    is_active = bool(fields[14]),
-                    )
+                try:
+                    temp_product = Product.objects.get(title=fields[2])
+                    
+                    temp_product.category = Category.objects.get(pk=int(fields[0]))
+                    temp_product.theme = Theme.objects.get(id=int(fields[1]))
+                    # temp_product.title = fields[2]
+                    temp_product.director = fields[3]
+                    temp_product.description = fields[4]
+                    temp_product.year = int(fields[5])
+                    temp_product.duration = fields[6]
+                    temp_product.trailer = fields[7]
+                    temp_product.season = fields[8]
+                    temp_product.image_a = fields[9]
+                    temp_product.image_b = fields[10]
+                    temp_product.quantity = int(fields[11])
+                    temp_product.price = float(fields[12])
+                    temp_product.in_stock = bool(fields[13])
+                    temp_product.is_active = bool(fields[14])
+                    
+                    temp_product.save()
+                    
+                except:
+                                        
+                    created = Product.objects.create(
+                        category = Category.objects.get(pk=int(fields[0])),
+                        theme = Theme.objects.get(id=int(fields[1])),
+                        title = fields[2],
+                        director = fields[3],
+                        description = fields[4],
+                        year = int(fields[5]),
+                        duration = fields[6],
+                        trailer = fields[7],
+                        season = fields[8],
+                        image_a = fields[9],
+                        image_b = fields[10],
+                        quantity = int(fields[11]),
+                        price = float(fields[12]),
+                        in_stock = bool(fields[13]),
+                        is_active = bool(fields[14]),
+                        )
             url = reverse('admin:index')
             return HttpResponseRedirect(url)
         print("Ok")

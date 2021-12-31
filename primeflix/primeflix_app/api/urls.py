@@ -1,5 +1,5 @@
 from django.urls import path, include
-from primeflix_app.api.views import CreateCheckoutSessionView, ThemeList, ProductList, ProductDetails, ReviewList, ReviewCreate, ReviewDetails, OrdersPaid, OrderDetails, OrderLines, OrderLineDetails, ShippingAddress
+from primeflix_app.api.views import stripe_webhook, CreateCheckoutSessionView, ThemeList, ProductList, ProductDetails, ReviewList, ReviewCreate, ReviewDetails, OrdersPaid, OrderDetails, OrderLines, OrderLineDetails, ShippingAddress
 
 urlpatterns = [
     
@@ -26,6 +26,6 @@ urlpatterns = [
     # path('theme/<int:pk>/', ThemeDetails.as_view(), name='theme-details'),
     # path('review/', ReviewList.as_view(), name="review-list"),
     # path('review/<int:pk>/', ReviewDetails.as_view(), name="review-details"),
-    
+    path('webhooks/stripe/', stripe_webhook, name='stripe-webhook'),
 ]
 

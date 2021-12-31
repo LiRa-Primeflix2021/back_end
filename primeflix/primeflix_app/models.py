@@ -34,7 +34,7 @@ class Product(models.Model):
     season = models.CharField(max_length=255, blank=True)
     image_a = models.CharField(max_length=255, blank=True)
     image_b = models.CharField(max_length=255, blank=True)
-    quantity = models.PositiveIntegerField(default=0)
+    quantity = models.IntegerField(default=0)
     price = models.DecimalField(max_digits=4, decimal_places=2, default=0)
     # discount = 
     in_stock = models.BooleanField(default=False)
@@ -98,12 +98,14 @@ class Customer(models.Model):
 
 
 class Order(models.Model):
-	date_ordered = models.DateTimeField(default=datetime.now())
-	# date_ordered = models.DateTimeField(auto_now_add=True)
 	order_paid = models.BooleanField(default=False)
 	transaction_id = models.CharField(max_length=100, blank=True, null=True)
 	order_user = models.ForeignKey(User, on_delete=models.SET_NULL, null=True)
+	payment_intent = models.CharField(max_length=100, blank=True, null=True)
+	date_created = models.DateTimeField(default=datetime.now())
+	date_ordered = models.DateTimeField(null=True)
 	# order_amount = models.PositiveIntegerField(default=0, null=True, blank=True)
+ 
  
 	@property
 	def total_order(self):
