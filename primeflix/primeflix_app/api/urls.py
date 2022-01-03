@@ -1,19 +1,29 @@
-from django.urls import path, include
-from primeflix_app.api.views import stripe_webhook, CreateCheckoutSessionView, ThemeList, ProductList, ProductDetails, ReviewList, ReviewCreate, ReviewDetails, OrdersPaid, OrderDetails, OrderLines, OrderLineDetails, ShippingAddress
+from django.urls import path
+from primeflix_app.api.views import FindOrdersbyYear, FindOrdersbyTitle, stripe_webhook, CreateCheckoutSessionView, ThemeList, ProductListAdd, ProductDetails, ReviewList, ReviewCreate, ReviewDetails, OrdersPaid, OrderDetails, OrderLines, OrderLineDetails, ShippingAddressDetails
 
-urlpatterns = [
+urlpatterns = [ 
+    path('theme/list/', ThemeList.as_view(), name='theme-list'),  
     
-    path('product/list/', ProductList.as_view(), name='product-list'),
+    path('product/list/', ProductListAdd.as_view(), name='product-list'),
     path('product/<int:pk>/', ProductDetails.as_view(), name='product-details'),
-    path('theme/list/', ThemeList.as_view(), name='theme-list'),    
+      
     path('product/<int:pk>/reviews/', ReviewList.as_view(), name="review-list"),
     path('<int:pk>/review-create/', ReviewCreate.as_view(), name="review-create"),
     path('review/<int:pk>/', ReviewDetails.as_view(), name="review-details"),  
+    
     path('orders-paid/', OrdersPaid.as_view(), name="orders-paid"),  
     path('order/', OrderDetails.as_view(), name="order"),
     path('orderlines/', OrderLines.as_view(), name="orderlines"),
     path('orderline/<int:pk>/', OrderLineDetails.as_view(), name="orderline-details"),
+    path('orders-title/<str:title>/', FindOrdersbyTitle.as_view(), name="movies-paid"),
+    path('orders-year/<str:year>/', FindOrdersbyYear.as_view(), name="orders-year"),
+    
     path('create-checkout-session/', CreateCheckoutSessionView, name="checkout-session"),
+    
+    path('shipping-address/', ShippingAddressDetails.as_view(), name='shipping_address'),
+        
+    path('webhooks/stripe/', stripe_webhook, name='stripe-webhook'),
+
     # path('products/', Products, name='products'),
     # path('categories/', Categories, name='categories'),
     # path('categorydetail/<int:pk>/', CategoryDetailsTEST, name='categories'),
@@ -26,6 +36,5 @@ urlpatterns = [
     # path('theme/<int:pk>/', ThemeDetails.as_view(), name='theme-details'),
     # path('review/', ReviewList.as_view(), name="review-list"),
     # path('review/<int:pk>/', ReviewDetails.as_view(), name="review-details"),
-    path('webhooks/stripe/', stripe_webhook, name='stripe-webhook'),
 ]
 

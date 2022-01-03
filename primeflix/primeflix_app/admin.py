@@ -80,18 +80,16 @@ class ProductAdmin(admin.ModelAdmin):
         data = {"form": form}
         return render(request, "admin/csv_upload.html", data)
 
-admin.site.register(Product, ProductAdmin)
-
 
 
 
 # Register your models here.
-
 admin.site.register(Category)
 admin.site.register(Theme)
+admin.site.register(Product, ProductAdmin)
 # admin.site.register(Product)
 admin.site.register(Review)
-admin.site.register(Customer)
+# admin.site.register(Customer)
 admin.site.register(Order)
 admin.site.register(OrderLine)
 admin.site.register(ShippingAddress)

@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from primeflix_app.models import Category, Theme, Product, Review, Customer, Order, OrderLine, ShippingAddress
+from primeflix_app.models import Category, Theme, Product, Review, Order, OrderLine, ShippingAddress
 
 
 
@@ -21,9 +21,7 @@ class ProductSerializer(serializers.ModelSerializer):
     class Meta:
         model = Product
         fields = "__all__"
-        # fields = ['id', 'name', 'description', 'active'] 
         # exclude = ['active']
-        # exclude = ('average_rating','number_ratings',)
         read_only_fields = ('average_rating', 'number_ratings')
         
     def get_len_title(self, object):
@@ -41,15 +39,6 @@ class ProductSerializer(serializers.ModelSerializer):
         else:
             return value
 
-
-
-# class StreamPlatformListSerializer(serializers.ModelSerializer):
-#     products = ProductSerializer(many=True, read_only=True)
-        
-#     class Meta:
-#         model = StreamPlatformList
-#         fields = "__all__"
-
 class CategorySerializer(serializers.ModelSerializer):
     products = ProductSerializer(many=True, read_only=True)
         
@@ -65,15 +54,6 @@ class ThemeSerializer(serializers.ModelSerializer):
     class Meta:
         model = Theme
         fields = "__all__"
-
-
-class CustomerSerializer(serializers.ModelSerializer):
-    # product = ProductSerializer(many=True, read_only=True)
-        
-    class Meta:
-        model = Customer
-        fields = "__all__"
-        
 
 
 class OrderLineSerializer(serializers.ModelSerializer):
@@ -96,26 +76,42 @@ class OrderSerializer(serializers.ModelSerializer):
         # exclude = ('customer',)
     
 class ShippingAddressSerializer(serializers.ModelSerializer):
-    # customer = CustomerSerializer(read_only=True)
-    order = OrderSerializer(many=True, read_only=True)
+    shippingAddress_user = serializers.StringRelatedField(read_only=True)
         
     class Meta:
         model = ShippingAddress
         fields = "__all__"
+        # exclude = ('customer',)
         
+
+
+
+# class CustomerSerializer(serializers.ModelSerializer):
+#     # product = ProductSerializer(many=True, read_only=True)
+        
+#     class Meta:
+#         model = Customer
+#         fields = "__all__"
+
+
+
 
 # def name_length(value):
 #         if (len(value) < 2):
 #             raise serializers.ValidationError("Name is too short")
 
-# class WatchListSerializer(serializers.Serializer):
+
+
+
+
+# class ProductSerializer(serializers.Serializer):
 #     id = serializers.IntegerField(read_only=True)
 #     name = serializers.CharField(validators = [name_length])
 #     description = serializers.CharField()
 #     active = serializers.BooleanField()
     
 #     def create(self, validated_data):
-#         return WatchList.objects.create(**validated_data)
+#         return Product.objects.create(**validated_data)
     
 #     def update(self, instance, validated_data):
 #         instance.name = validated_data.get('name', instance.name)

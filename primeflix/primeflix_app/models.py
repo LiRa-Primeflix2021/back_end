@@ -27,11 +27,11 @@ class Product(models.Model):
     title = models.CharField(max_length=255, unique=True)
     director = models.CharField(max_length=255, blank=True)
     description = models.TextField(blank=True)
-    # image = models.ImageField(upload_to='images/')
     year = models.PositiveIntegerField(default=2000)
     duration = models.CharField(max_length=255, blank=True)
     trailer = models.CharField(max_length=255, blank=True)
     season = models.CharField(max_length=255, blank=True)
+    # image = models.ImageField(upload_to='images/')
     image_a = models.CharField(max_length=255, blank=True)
     image_b = models.CharField(max_length=255, blank=True)
     quantity = models.IntegerField(default=0)
@@ -49,29 +49,6 @@ class Product(models.Model):
     
     def __str__(self):
         return self.title
-    
-        
-# class Product(models.Model):
-#     title = models.CharField(max_length=50)
-#     description = models.CharField(max_length=200)
-#     active = models.BooleanField(default=True)
-#     price = models.IntegerField(default=0)
-#     # image = models.ImageField(null=True, blank=True)
-#     created = models.DateTimeField(auto_now_add=True)
-#     average_rating = models.FloatField(default=0)
-#     number_ratings = models.IntegerField(default=0)
-#     platform = models.ForeignKey(StreamPlatformList, on_delete=models.CASCADE, related_name="products")
-    
-#     def __str__(self):
-#         return self.title
-
-	# @property
-	# def imageURL(self):
-	# 	try:
-	# 		url = self.image.url
-	# 	except:
-	# 		url = ''
-	# 	return url
     
     
 class Review(models.Model):
@@ -104,18 +81,23 @@ class Order(models.Model):
 	payment_intent = models.CharField(max_length=100, blank=True, null=True)
 	date_created = models.DateTimeField(default=datetime.now())
 	date_ordered = models.DateTimeField(null=True)
-	# order_amount = models.PositiveIntegerField(default=0, null=True, blank=True)
- 
+	order_amount = models.PositiveIntegerField(default=0, null=True, blank=True)
+	
  
 	@property
-	def total_order(self):
-		orderLines = OrderLine.objects.filter(order=self)
-		if orderLines.exists():
+	def get_test(self):
+		total ='coucou'
+		return total
+
+	@property
+	def get_total_order(self):
+		queryset_orderLines = OrderLine.objects.filter(order=self)
+		if queryset_orderLines.exists():
 			total = 0
 
-			for orderLine in orderLines:
+			for orderLine in queryset_orderLines:
 				if (orderLine.order.id == self.id):
-					total = total + orderLine.get_total_orderLine()
+					total = total + orderLine.get_total_orderLine
 			return total
 
 	def __str__(self):
@@ -127,17 +109,13 @@ class OrderLine(models.Model):
 	date_update = models.DateTimeField(auto_now_add=True)
 	product = models.ForeignKey(Product, on_delete=models.SET_NULL, null=True)
 	order = models.ForeignKey(Order, on_delete=models.SET_NULL, null=True, related_name="order_lines")
-	# customer = models.ForeignKey(Customer, on_delete=models.SET_NULL, null=True)
 	orderLine_user = models.ForeignKey(User, on_delete=models.SET_NULL, null=True)
 	note = models.CharField(max_length=300, null=True, blank=True)
-	# orderLine_amount = models.PositiveIntegerField(default=0, null=True, blank=True)
     
 	@property
 	def get_total_orderLine(self):
 		if (self.quantity != 0):
-			# temp_product = Product.objects.get(pk=self.product.id)
 			total = self.product.price * self.quantity
-			# total = temp_product.price * self.quantity
 			return total
 		else: 
 			return 0 
@@ -148,13 +126,12 @@ class OrderLine(models.Model):
 
 
 class ShippingAddress(models.Model):
-	address = models.CharField(max_length=200, null=False)
+	street = models.CharField(max_length=200, null=False)
 	city = models.CharField(max_length=200, null=False)
-	state = models.CharField(max_length=200, null=False)
 	zipcode = models.CharField(max_length=200, null=False)
 	date_created = models.DateTimeField(auto_now_add=True)
-	ship_add_user = models.ForeignKey(User, on_delete=models.CASCADE, null=True)
-	order = models.ForeignKey(Order, on_delete=models.CASCADE, null=True)
+	shippingAddress_user = models.OneToOneField(User, on_delete=models.CASCADE, null=True)
+	# order = models.ForeignKey(Order, on_delete=models.SET_NULL, null=True)
 
 	def __str__(self):
-		return self.address
+		return self.street
