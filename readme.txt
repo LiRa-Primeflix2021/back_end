@@ -22,6 +22,7 @@ paste "back_end_folder" in "project"
 ->open a second prompt :
 
 cd project
+
 python -m venv primeflix_env
 
 primeflix_env\scripts\activate
@@ -35,6 +36,8 @@ pip install stripe
 pip install django-cors-headers 
 
 pip install flask
+
+pip install social-auth-app-django
 
 cd primeflix
 python manage.py runserver
