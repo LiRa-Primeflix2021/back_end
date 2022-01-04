@@ -1,0 +1,203 @@
+py manage.py makemigrations
+py manage.py migrate
+
+python manage.py createsuperuser
+admin
+admin@admin.com
+admin
+admin
+y
+
+py manage.py shell
+
+from primeflix_app.models import User, Category, Theme, Product, Review, Order, OrderLine, ShippingAddress
+
+
+
+u2 = User(username="frank", email="frank@gmail.com", password="frank", is_superuser=False)
+u2.set_password('informatique')
+u2.save()
+u3 = User(username="harry", email="harry@gmail.com", password="harry", is_superuser=False, is_staff=True)
+u3.set_password('informatique')
+u3.save()
+u4 = User(username="roger", password="roger", email="roger@gmail.com", is_superuser=False)
+u4.set_password('informatique')
+u4.save()
+u5 = User(username="tom", password="tom", email="tom@gmail.com", is_superuser=False)
+u5.set_password('informatique')
+u5.save()
+User.objects.all()
+
+
+sa1 = ShippingAddress(address="Rue des Guillemins 1", city="Liège", zipcode="4000", shippingAddress_user=User.objects.get(id=1))
+sa1.save()
+sa2 = ShippingAddress(address="Rue Louvrex 2", city="Liège", zipcode="4000", shippingAddress_user=User.objects.get(id=2))
+sa2.save()
+sa3 = ShippingAddress(address="Rue de Fétinne 3", city="Liège", zipcode="4020", shippingAddress_user=User.objects.get(id=3))
+sa3.save()
+sa4 = ShippingAddress(address="Rue Saint-Laurent 4", city="Liège", zipcode="4000", shippingAddress_user=User.objects.get(id=4))
+sa4.save()
+sa5 = ShippingAddress(address="Rue Saint-Léonard 5", city="Liège", zipcode="4000", shippingAddress_user=User.objects.get(id=5))
+sa5.save()
+
+
+c1 = Category(name="Movie")
+c1.save()
+c2 = Category(name="TV Show")
+c2.save()
+Category.objects.all()
+
+
+t1 = Theme(name="Drama")
+t1.save()
+t2 = Theme(name="Love")
+t2.save()
+t3 = Theme(name="Western")
+t3.save()
+t4 = Theme(name="Comedy")
+t4.save()
+t5 = Theme(name="Action")
+t5.save()
+Theme.objects.all()
+
+
+p1 = Product(category=Category.objects.get(id=1), theme=Theme.objects.get(id=2), title="Titanic", director = "James Cameron", description = "En 1997, l'épave du Titanic est l'objet d'une exploration fiévreuse, menée par des chercheurs de trésor en quête d'un diamant bleu qui se trouvait à bord. Frappée par un reportage télévisé, l'une des rescapées du naufrage, âgée de 102 ans, Rose DeWitt, se rend sur place et évoque ses souvenirs. 1912. Fiancée à un industriel arrogant, Rose croise sur le bateau un artiste sans le sou.", year = 1997, duration = 195, trailer = "https://www.youtube.com/watch?v=jUm88F3MEbQ&ab_channel=TheTrailerGuy", quantity=111, image_a ="https://static.wikia.nocookie.net/titanic/images/7/79/Affiche_film_Titanic.png/revision/latest?cb=20120716135714&path-prefix=fr",image_b="https://images.immediate.co.uk/production/volatile/sites/7/2018/01/TIT011DJ_0-345b632.jpg?quality=90&resize=525%2C350", price=21, in_stock=True, is_active=True)
+p1.save()
+p2 = Product(category=Category.objects.get(id=1), theme=Theme.objects.get(id=3), title="Le bon, la brute et le truand", director = "Sergio Leone", description = "Pendant la Guerre de Sécession, trois hommes, préférant s'intéresser à leur profit personnel, se lancent à la recherche d'un coffre contenant 200 000 dollars en pièces d'or volés à l'armée sudiste. Tuco sait que le trésor se trouve dans un cimetière, tandis que Joe connaît le nom inscrit sur la pierre tombale qui sert de cache. Chacun a besoin de l'autre, mais un troisième homme entre dans la course: Setenza, un homme qui n'hésite pas à massacrer femmes et enfants pour parvenir à ses fins.", year = 1966, trailer = "https://www.youtube.com/watch?v=WA1hCZFOPqs&ab_channel=webzine1kult", duration = 161, image_a = "https://www.rts.ch/2010/07/21/11/39/2285321.image?mw=1280", image_b = "https://www.aubistrogeek.com/wp-content/uploads/2020/03/Image-film-le-bon-la-brute-et-le-truand.jpg", quantity=121, price=22, in_stock=True, is_active=True)
+p2.save()
+p3 = Product(category=Category.objects.get(id=2), theme=Theme.objects.get(id=2), title="Emily in Paris - S1", director = "Andrew Fleming", description = "Emily, une Américaine d'une vingtaine d'années originaire du Midwest, part s'installer à Paris après avoir reçu une proposition d'emploi des plus inattendues. Son nouveau challenge : apporter un point de vue américain à une agence de marketing française en difficulté.", year = 2020, season="1", trailer="https://www.youtube.com/watch?v=Ldea1XmUj8o&ab_channel=Meilleursfilmsets%C3%A9ries", duration = 40, image_a="https://upload.wikimedia.org/wikipedia/commons/3/3d/Emily_In_Paris_%28Logo%29.jpg", image_b = "https://media.vogue.fr/photos/614dc481caa66aad73ee918e/master/w_3600,h_2400,c_limit/EIP_206_Unit_01917R.jpg", quantity=77, price=23, in_stock=True, is_active=True)
+p3.save()
+p4 = Product(category=Category.objects.get(id=2), theme=Theme.objects.get(id=1), title="Fargo", director = "Adam Bernstein", season=1, description = "Quelque part dans le Minnesota, en plein hiver. Jerry Lundegaard, un minable vendeur de voitures, contacte un petit escroc, Carl Showalter, et son inquiétant compère, Grimsrud. Il leur demande d'enlever sa femme, Jean, dont le père, Wade, un richissime homme d'affaires, ne manquera pas de régler la rançon exigée. Les deux truands s'empêtrent quelque peu dans les péripéties mais finissent par réussir leur kidnapping. Grimsrud commence alors à donner la mesure de ses talents.", year = 2014, trailer = "https://www.youtube.com/watch?v=xZCiyw1ZfB0&ab_channel=FilmBookdotComTV", duration = 40, image_a="https://www.avoir-alire.com/IMG/arton2528.jpg", image_b = "https://www.critictoo.com/wp-content/uploads/2014/06/Fargo-Lorne-Malvo.jpg", quantity=13, price=24, in_stock=True, is_active=True)
+p4.save()
+p5 = Product(category=Category.objects.get(id=1), theme=Theme.objects.get(id=1), title="Forrest Gump", director = "Robert Zemeckis", description = "Sur un banc, à Savannah, en Géorgie, Forrest Gump attend le bus. Comme celui-ci tarde à venir, le jeune homme raconte sa vie à ses compagnons d'ennui. A priori, ses capacités intellectuelles plutôt limitées ne le destinaient pas à de grandes choses. Qu'importe. Forrest Gump, sans jamais rien y comprendre, s'associa à tous les grands événements de l'Histoire de son pays.", year = 1994, duration = 142, trailer = "https://www.youtube.com/watch?v=bLvqoHBptjg&ab_channel=ParamountMovies", image_a = "https://fr.web.img4.acsta.net/pictures/15/10/13/15/12/514297.jpg", image_b = "https://img.filmsactu.net/datas/films/f/o/forrest-gump/xl/forrest-gump-5ede6b09d0091.jpg", quantity=151, price=25, in_stock=True, is_active=True)
+p5.save()
+Product.objects.all()
+
+
+r1 = Review(review_user=User.objects.get(id=1), product=Product.objects.get(id=1), description="Film sympa", rating=3)
+r1.save()
+r2 = Review(review_user=User.objects.get(id=1), product=Product.objects.get(id=2), description="Film super", rating=5)
+r2.save()
+r3 = Review(review_user=User.objects.get(id=1), product=Product.objects.get(id=3), description="Film nul", rating=1)
+r3.save()
+r4 = Review(review_user=User.objects.get(id=1), product=Product.objects.get(id=4), description="Mauvais", rating=2)
+r4.save()
+r5 = Review(review_user=User.objects.get(id=1), product=Product.objects.get(id=5), description="Très bien", rating=4)
+r5.save()
+r6 = Review(review_user=User.objects.get(id=2), product=Product.objects.get(id=3), description="Moyen", rating=3)
+r6.save()
+r7 = Review(review_user=User.objects.get(id=2), product=Product.objects.get(id=4), description="A voir", rating=3)
+r7.save()
+r8 = Review(review_user=User.objects.get(id=2), product=Product.objects.get(id=5), description="Top", rating=4)
+r8.save()
+r9 = Review(review_user=User.objects.get(id=2), product=Product.objects.get(id=3), description="Cool", rating=4)
+r9.save()
+r10 = Review(review_user=User.objects.get(id=2), product=Product.objects.get(id=3), description="Bien", rating=4)
+r10.save()
+r11 = Review(review_user=User.objects.get(id=3), product=Product.objects.get(id=1), description="Génial", rating=5)
+r11.save()
+r12 = Review(review_user=User.objects.get(id=3), product=Product.objects.get(id=2), description="Bof", rating=2)
+r12.save()
+r13 = Review(review_user=User.objects.get(id=3), product=Product.objects.get(id=3), description="Sympa", rating=4)
+r13.save()
+r14 = Review(review_user=User.objects.get(id=3), product=Product.objects.get(id=4), description="Cool", rating=4)
+r14.save()
+r15 = Review(review_user=User.objects.get(id=3), product=Product.objects.get(id=5), description="Mauvais", rating=1)
+r15.save()
+Review.objects.all()
+
+
+
+
+
+ol1 = OrderLine(quantity=11, product=Product.objects.get(id=1), order=Order.objects.get(id=5), orderLine_user=User.objects.get(id=5))
+ol1.save()
+ol2 = OrderLine(quantity=12, product=Product.objects.get(id=2), order=Order.objects.get(id=5), orderLine_user=User.objects.get(id=5))
+ol2.save()
+ol3 = OrderLine(quantity=13, product=Product.objects.get(id=4), order=Order.objects.get(id=5), orderLine_user=User.objects.get(id=5))
+ol3.save()
+OrderLine.objects.all()
+
+order_setter = Order.objects.get(id=5)
+order_setter.order_paid = True
+order_setter.save()
+order_new = Order(order_user=User.objects.get(id=5))
+order_new.save()
+
+ol1 = OrderLine(quantity=10, product=Product.objects.get(id=1), order=Order.objects.get(id=6), orderLine_user=User.objects.get(id=5))
+ol1.save()
+ol2 = OrderLine(quantity=10, product=Product.objects.get(id=5), order=Order.objects.get(id=6), orderLine_user=User.objects.get(id=5))
+ol2.save()
+ol3 = OrderLine(quantity=10, product=Product.objects.get(id=3), order=Order.objects.get(id=6), orderLine_user=User.objects.get(id=5))
+ol3.save()
+OrderLine.objects.all()
+
+order_setter = Order.objects.get(id=6)
+order_setter.order_paid = True
+order_setter.save()
+order_new = Order(order_user=User.objects.get(id=5))
+order_new.save()
+
+
+
+
+ol4 = OrderLine(quantity=21, product=Product.objects.get(id=4), order=Order.objects.get(id=4), orderLine_user=User.objects.get(id=4))
+ol4.save()
+ol5 = OrderLine(quantity=32, product=Product.objects.get(id=3), order=Order.objects.get(id=4), orderLine_user=User.objects.get(id=4))
+ol5.save()
+ol5 = OrderLine(quantity=43, product=Product.objects.get(id=2), order=Order.objects.get(id=4), orderLine_user=User.objects.get(id=4))
+ol5.save()
+OrderLine.objects.all()
+
+
+
+# list = Review.objects.all()
+# for i in list:
+	# i.delete()
+
+# list = Product.objects.all()
+# for i in list:
+	# i.delete()
+	
+
+# list = Theme.objects.all()
+# for i in list:
+	# i.delete()
+	
+
+# list = Category.objects.all()
+# for i in list:
+	# i.delete()
+	
+
+
+# from primeflix_app.models import User, Category, Theme, Product, Review
+
+
+
+# u1 = User(username="test4", password="test3", is_superuser=False)
+# u1.set_password("informatique")
+# u1.save()
+# sendConfirm(u1)
+
+# usr = User.objects.get(username='test3')
+# usr.set_password('raw password')
+# usr.save()
+
+
+#cu1 = Customer(user=User.objects.get(id=1), email=User.objects.get(id=1).email)
+#cu1.save()
+#cu2 = Customer(user=User.objects.get(id=2), email="cu2@gmail.com")
+#cu2.save()
+#cu3 = Customer(user=User.objects.get(id=3), email="cu3@gmail.com")
+#cu3.save()
+#cu4 = Customer(user=User.objects.get(id=4), email="cu4@gmail.com")
+#cu4.save()
+#cu5 = Customer(user=User.objects.get(id=5), email="cu5@gmail.com")
+#cu5.save()
+#Customer.objects.all()
+
+
+
+print("OK")
+
