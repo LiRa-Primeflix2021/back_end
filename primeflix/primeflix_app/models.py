@@ -36,7 +36,7 @@ class Product(models.Model):
     image_b = models.CharField(max_length=255, blank=True)
     quantity = models.IntegerField(default=0)
     price = models.DecimalField(max_digits=4, decimal_places=2, default=0)
-    # discount = 
+    # discount = models.PositiveSmallIntegerField()
     in_stock = models.BooleanField(default=False)
     is_active = models.BooleanField(default=False)
     average_rating = models.FloatField(default=0)
@@ -109,7 +109,6 @@ class OrderLine(models.Model):
 	date_update = models.DateTimeField(auto_now_add=True)
 	product = models.ForeignKey(Product, on_delete=models.SET_NULL, null=True)
 	order = models.ForeignKey(Order, on_delete=models.SET_NULL, null=True, related_name="order_lines")
-	orderLine_user = models.ForeignKey(User, on_delete=models.SET_NULL, null=True)
 	note = models.CharField(max_length=300, null=True, blank=True)
     
 	@property
@@ -121,7 +120,7 @@ class OrderLine(models.Model):
 			return 0 
 
 	def __str__(self):
-		return  str(self.id) + " -  for user : " + str(self.orderLine_user) + " -   from order : " + str(self.order)
+		return  str(self.id) + " -  for user : " + str(self.order.order_user) + " -   from order : " + str(self.order)
 		return str(self.order) + str(self.orderLine_user) + str(self.order.order_user) + str(self.product) + " : " + str(self.product.price) + "€  * " + str(self.quantity) + " = " + self.get_total_orderLine + " €"
 
 

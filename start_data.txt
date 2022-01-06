@@ -110,11 +110,11 @@ Review.objects.all()
 
 
 
-ol1 = OrderLine(quantity=11, product=Product.objects.get(id=1), order=Order.objects.get(id=5), orderLine_user=User.objects.get(id=5))
+ol1 = OrderLine(quantity=11, product=Product.objects.get(id=1), order=Order.objects.get(id=5))
 ol1.save()
-ol2 = OrderLine(quantity=12, product=Product.objects.get(id=2), order=Order.objects.get(id=5), orderLine_user=User.objects.get(id=5))
+ol2 = OrderLine(quantity=12, product=Product.objects.get(id=2), order=Order.objects.get(id=5))
 ol2.save()
-ol3 = OrderLine(quantity=13, product=Product.objects.get(id=4), order=Order.objects.get(id=5), orderLine_user=User.objects.get(id=5))
+ol3 = OrderLine(quantity=13, product=Product.objects.get(id=4), order=Order.objects.get(id=5))
 ol3.save()
 OrderLine.objects.all()
 
@@ -124,11 +124,11 @@ order_setter.save()
 order_new = Order(order_user=User.objects.get(id=5))
 order_new.save()
 
-ol1 = OrderLine(quantity=10, product=Product.objects.get(id=1), order=Order.objects.get(id=6), orderLine_user=User.objects.get(id=5))
+ol1 = OrderLine(quantity=10, product=Product.objects.get(id=1), order=Order.objects.get(id=6))
 ol1.save()
-ol2 = OrderLine(quantity=10, product=Product.objects.get(id=5), order=Order.objects.get(id=6), orderLine_user=User.objects.get(id=5))
+ol2 = OrderLine(quantity=10, product=Product.objects.get(id=5), order=Order.objects.get(id=6))
 ol2.save()
-ol3 = OrderLine(quantity=10, product=Product.objects.get(id=3), order=Order.objects.get(id=6), orderLine_user=User.objects.get(id=5))
+ol3 = OrderLine(quantity=10, product=Product.objects.get(id=3), order=Order.objects.get(id=6))
 ol3.save()
 OrderLine.objects.all()
 
@@ -141,11 +141,11 @@ order_new.save()
 
 
 
-ol4 = OrderLine(quantity=21, product=Product.objects.get(id=4), order=Order.objects.get(id=4), orderLine_user=User.objects.get(id=4))
+ol4 = OrderLine(quantity=21, product=Product.objects.get(id=4), order=Order.objects.get(id=4))
 ol4.save()
-ol5 = OrderLine(quantity=32, product=Product.objects.get(id=3), order=Order.objects.get(id=4), orderLine_user=User.objects.get(id=4))
+ol5 = OrderLine(quantity=32, product=Product.objects.get(id=3), order=Order.objects.get(id=4))
 ol5.save()
-ol5 = OrderLine(quantity=43, product=Product.objects.get(id=2), order=Order.objects.get(id=4), orderLine_user=User.objects.get(id=4))
+ol5 = OrderLine(quantity=43, product=Product.objects.get(id=2), order=Order.objects.get(id=4))
 ol5.save()
 OrderLine.objects.all()
 

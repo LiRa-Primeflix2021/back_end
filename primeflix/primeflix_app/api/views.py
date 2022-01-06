@@ -84,7 +84,7 @@ def CreateCheckoutSessionView(request):
     permission_classes = [IsAuthenticated]
 
     temp_order = Order.objects.get(order_user=request.user, order_paid=False)
-    queryset_Orderlines = OrderLine.objects.filter(orderLine_user=request.user, order=temp_order)
+    queryset_Orderlines = OrderLine.objects.filter(order__order_user=request.user, order=temp_order)
    
     if (request.user != temp_order.order_user):
                 raise ValidationError("denied")
@@ -330,7 +330,7 @@ class OrderLines(generics.ListCreateAPIView):
                 raise ValidationError("denied")
 
         if queryset_order.exists():
-            return OrderLine.objects.filter(orderLine_user=self.request.user, order=queryset_order[0])
+            return OrderLine.objects.filter(order__order_user=self.request.user, order=queryset_order[0])
         else:
             raise ValidationError("denied")
             
@@ -395,8 +395,7 @@ class FindOrdersbyTitle(generics.ListAPIView):
     def get_queryset(self):
         temp_title = self.kwargs['title']
         temp_product = Product.objects.get(title=temp_title)
-        queryset_orderLines = OrderLine.objects.filter(product=temp_product, orderLine_user=self.request.user)
-        
+        queryset_orderLines = OrderLine.objects.filter(product=temp_product, order__order_user=self.request.user)
         queryset_orders = []
         for item in queryset_orderLines:
             queryset_orders.append(item.order)
@@ -413,18 +412,12 @@ class FindOrdersbyYear(generics.ListAPIView):
         last_date = datetime.date(int(temp_year), 12, 31)
         return Order.objects.filter(date_ordered__range = (first_date, last_date), order_user=self.request.user, order_paid=True)
     
-        
-    # def get(self, request):
-    #     products = Product.objects.all()
-    #     serializer = ProductSerializer(products, many=True) 
-    #     # refresh_ratings()
-    #     return Response(serializer.data)
+    
 
 # //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 # products management (many=True :> ProductSerializer needs to consult multiple objects in the query set and map them)
 # //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
- 
 # 
 # product list + add one specific product to cart (quantity limited to the available stock)
 # a check is done if the product is already in cart
@@ -467,7 +460,7 @@ class ProductListAdd(APIView):
                         serializer.validated_data['quantity'] = temp_quantity
                         serializer.validated_data['note']= ""
 
-                    serializer.validated_data['orderLine_user'] = request.user
+                    serializer.validated_data['order__order_user'] = request.user
                     serializer.validated_data['product'] = temp_product
                     serializer.validated_data['order'] = temp_order            
                     serializer.save()
@@ -490,7 +483,7 @@ class ProductListAdd(APIView):
                     else:
                         serializer.validated_data['note']= ""
                         
-                    serializer.validated_data['orderLine_user'] = request.user
+                    serializer.validated_data['order__order_user'] = request.user
                     serializer.validated_data['product'] = temp_product
                     serializer.validated_data['order'] = temp_order            
                     serializer.save()
@@ -545,7 +538,7 @@ class ProductDetails(APIView):
                     else:
                         serializer.validated_data['note']= ""
 
-                    serializer.validated_data['orderLine_user'] = request.user
+                    serializer.validated_data['order__order_user'] = request.user
                     serializer.validated_data['product'] = temp_product
                     serializer.validated_data['order'] = temp_order            
                     serializer.save()
@@ -570,7 +563,7 @@ class ProductDetails(APIView):
                     else:
                         serializer.validated_data['note']= ""
                         
-                    serializer.validated_data['orderLine_user'] = request.user
+                    serializer.validated_data['order__order_user'] = request.user
                     serializer.validated_data['product'] = temp_product
                     serializer.validated_data['order'] = temp_order            
                     serializer.save()
