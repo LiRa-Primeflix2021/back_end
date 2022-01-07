@@ -11,9 +11,9 @@ from rest_framework import generics
 from rest_framework.exceptions import APIException, ValidationError
 from rest_framework import status
 from rest_framework.permissions import IsAuthenticated, IsAuthenticatedOrReadOnly
-from primeflix_app.models import  Category, Theme, Product, Review, Order, OrderLine, ShippingAddress
-from primeflix_app.api.serializers import CategorySerializer, ThemeSerializer, ProductSerializer, ReviewSerializer, OrderSerializer, OrderLineSerializer, ShippingAddressSerializer
-from primeflix_app.api.permissions import IsAdminOrReadyOnly, IsReviewUserOrReadOnly, IsOrderLineUser, IsOrderUser
+from primeflix_app.models import Theme, Product, Review, Order, OrderLine, ShippingAddress
+from primeflix_app.api.serializers import ThemeSerializer, ProductSerializer, ReviewSerializer, OrderSerializer, OrderLineSerializer, ShippingAddressSerializer
+from primeflix_app.api.permissions import IsReviewUserOrReadOnly, IsOrderLineUser, IsOrderUser
 from django.dispatch import receiver
 from django.shortcuts import render, redirect
 from django.urls import reverse
@@ -295,7 +295,7 @@ class OrdersPaid(generics.ListAPIView):
 # current cart (not paid!) + cart lines
 # 
 class OrderDetails(APIView):
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsOrderUser]
 
     def get(self, request):        
         order_query = Order.objects.filter(order_user=self.request.user, order_paid=False)
@@ -319,7 +319,7 @@ class OrderDetails(APIView):
 # current cart lines 
 #    
 class OrderLines(generics.ListCreateAPIView):
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsOrderLineUser]
     serializer_class = OrderLineSerializer
     
     def get_queryset(self):
@@ -341,6 +341,7 @@ class OrderLines(generics.ListCreateAPIView):
 class OrderLineDetails(generics.RetrieveUpdateDestroyAPIView):
     permission_classes = [IsOrderLineUser]
     serializer_class = OrderLineSerializer 
+    
     queryset = OrderLine.objects.all()
     
     def delete(self, request, *args, **kwargs):
@@ -387,6 +388,12 @@ class OrderLineDetails(generics.RetrieveUpdateDestroyAPIView):
             raise APIException("Denied")
 
 
+
+
+
+#
+# 
+#  
 
 class FindOrdersbyTitle(generics.ListAPIView):
     permission_classes = [IsOrderUser]
@@ -438,17 +445,14 @@ class ProductListAdd(APIView):
         if request.data['quantity'] < 1:
             raise ValidationError("Quantity < 1")     
         
-        if queryset_temp_order.exists():
-                    
+        if queryset_temp_order.exists():                    
             temp_order = queryset_temp_order[0]
-
             queryset_temp_orderline = OrderLine.objects.filter(product=temp_product, order=temp_order)
             
-            if queryset_temp_orderline.exists():
-                
-                temp_orderline = queryset_temp_orderline[0]
-                
+            if queryset_temp_orderline.exists():               
+                temp_orderline = queryset_temp_orderline[0]  
                 serializer = OrderLineSerializer(temp_orderline, data=request.data)
+                
                 if(serializer.is_valid()):
                     temp_quantity = serializer.validated_data['quantity'] + temp_orderline.quantity
                     
@@ -488,6 +492,7 @@ class ProductListAdd(APIView):
                     serializer.validated_data['order'] = temp_order            
                     serializer.save()
                     return Response(serializer.data)
+                
                 else:
                     return Response(serializer.errors) 
         else:
@@ -496,7 +501,7 @@ class ProductListAdd(APIView):
 
 # 
 # product detail + add to cart (quantity limited to the available stock)
-# a check is done if the product is already in cart
+# a check is done if the product is already in the cart
 #
 class ProductDetails(APIView):
     permission_classes = [IsAuthenticatedOrReadOnly]
@@ -586,7 +591,6 @@ class ProductDetails(APIView):
 
 class ThemeList(generics.ListAPIView):
     serializer_class = ThemeSerializer
-    # permission_classes = [IsAuthenticatedOrReadOnly]
 
     def get_queryset(self):
         return Theme.objects.all()
@@ -599,6 +603,14 @@ class ThemeList(generics.ListAPIView):
     #     else:
     #         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)       
     
+
+
+
+
+
+
+
+
 
 
 # //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

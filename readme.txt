@@ -1,6 +1,9 @@
-INSTALLATION stripe.exe   (source : https://github.com/stripe/stripe-cli/releases/latest) (https://stripe.com/docs/stripe-cli) (https://stripe.com/docs/stripe-cli/webhooks
+INSTALLATION stripe
 
-->open prompt :
+-> download stripe_X.X.X_windows_x86_64.zip   (source : https://github.com/stripe/stripe-cli/releases/latest) (https://stripe.com/docs/stripe-cli) (https://stripe.com/docs/stripe-cli/webhooks
+-> extract file 
+
+-> open prompt :
 
 start stripe.exe
 
@@ -8,54 +11,51 @@ stripe login --interactive
 
 sk_test_51K5qULCHYlGQuK8DVIeyda9GmeCALustT4HfkQOf7ie8ptlINb0yxcAJzoF9zryXCxkFhzSKfiiLsWycxJUF0c5600bc9NWCAT
 
+-> (press enter to confirm the name of your computer)
+
 stripe listen --forward-to 127.0.0.1:8000/store/webhooks/stripe/
 
-(do not close prompt)
+-> (do not close prompt)
 
 ********************************************************************
 INSTALLATION + RUN SERVER
 ********************************************************************
-download + install python
-create folder "project"
-paste "back_end_folder" in "project"
+-> download + install last version python  (source : https://www.python.org/downloads/)
 
-->open a second prompt :
+-> download zip "back_end-examen"
+-> open zip and extract folder "back_end-examen"
 
-cd project
+-> open a second prompt :
 
-python -m venv primeflix_env
+cd back_end-examen
+
+-> copy and paste these 10 following commands :
 
 primeflix_env\scripts\activate
-
 pip install djangorestframework
-
 pip install djangorestframework-simplejwt
-
 pip install stripe
-
 pip install django-cors-headers 
-
 pip install flask
-
 pip install social-auth-app-django
-
 cd primeflix
 python manage.py runserver
 
+
+(skip this part. It must be done if the virtual environment is new with the command "python -m venv primeflix_env")
 -> in folder : project\primeflix_env\Lib\site-packages\rest_framework
 -> open file : permissions.py 
 -> add : SAFE_ACCESS = ()
 -> save file
 
 ********************************************************************
-RUN SERVER
+RUN SERVER  (if you have done the installation and you want to start the app)
 ********************************************************************
 
 cd project
 primeflix_env\scripts\activate
 cd primeflix
 python manage.py runserver
-
 
 
 ********************************************************************

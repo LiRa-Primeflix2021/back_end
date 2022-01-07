@@ -64,16 +64,6 @@ class Review(models.Model):
         return str(self.rating) + "/5 for product : " + self.product.title + " | written by : " + str(self.review_user)
     
 
-class Customer(models.Model):
-	user = models.OneToOneField(User, null=True, blank=True, on_delete=models.CASCADE)
-	name = models.CharField(max_length=200, null=True)
-	email = models.CharField(max_length=200, default=True, unique=True)
-	stripe_customer_id = models.CharField(max_length=50, blank=True, null=True)
- 
-	def __str__(self):
-		return self.email
-
-
 class Order(models.Model):
 	order_paid = models.BooleanField(default=False)
 	transaction_id = models.CharField(max_length=100, blank=True, null=True)
@@ -134,3 +124,13 @@ class ShippingAddress(models.Model):
 
 	def __str__(self):
 		return self.street
+
+
+class Customer(models.Model):
+	user = models.OneToOneField(User, null=True, blank=True, on_delete=models.CASCADE)
+	name = models.CharField(max_length=200, null=True)
+	email = models.CharField(max_length=200, default=True, unique=True)
+	stripe_customer_id = models.CharField(max_length=50, blank=True, null=True)
+ 
+	def __str__(self):
+		return self.email

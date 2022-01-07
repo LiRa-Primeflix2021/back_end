@@ -18,9 +18,9 @@ urlpatterns = [
     path('orders-title/<str:title>/', FindOrdersbyTitle.as_view(), name="movies-paid"),
     path('orders-year/<str:year>/', FindOrdersbyYear.as_view(), name="orders-year"),
     
-    path('create-checkout-session/', CreateCheckoutSessionView, name="checkout-session"),
-    
     path('shipping-address/', ShippingAddressDetails.as_view(), name='shipping_address'),
+
+    path('create-checkout-session/', CreateCheckoutSessionView, name="checkout-session"),    
         
     path('webhooks/stripe/', stripe_webhook, name='stripe-webhook'),
 
