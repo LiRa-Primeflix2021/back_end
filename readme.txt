@@ -20,7 +20,7 @@ stripe listen --forward-to 127.0.0.1:8000/store/webhooks/stripe/
 
 
 ********************************************************************
-INSTALLATION + RUN SERVER
+INSTALLATION project + RUN SERVER
 ********************************************************************
 -> download + install last version python  (source : https://www.python.org/downloads/)
 
