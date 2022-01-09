@@ -1,5 +1,6 @@
+********************************************************************
 INSTALLATION stripe
-
+********************************************************************
 -> download stripe_X.X.X_windows_x86_64.zip   (source : https://github.com/stripe/stripe-cli/releases/latest) (https://stripe.com/docs/stripe-cli) (https://stripe.com/docs/stripe-cli/webhooks
 -> extract file 
 
@@ -17,6 +18,7 @@ stripe listen --forward-to 127.0.0.1:8000/store/webhooks/stripe/
 
 -> (do not close prompt)
 
+
 ********************************************************************
 INSTALLATION + RUN SERVER
 ********************************************************************
@@ -29,7 +31,7 @@ INSTALLATION + RUN SERVER
 
 cd back_end-examen
 
--> copy and paste these 10 following commands :
+-> copy these 10 following commands and paste them :
 
 primeflix_env\scripts\activate
 pip install djangorestframework
@@ -48,6 +50,7 @@ python manage.py runserver
 -> add : SAFE_ACCESS = ()
 -> save file
 
+
 ********************************************************************
 RUN SERVER  (if you have done the installation and you want to start the app)
 ********************************************************************
@@ -65,6 +68,7 @@ ENDPOINTS LIST
 sign up user
 POST
 endpoint : 127.0.0.1:8000/account/register/
+example jason format :
 {
 	"username":"diego",
 	"email":"diego@gmail.com",
@@ -77,6 +81,7 @@ endpoint : 127.0.0.1:8000/account/register/
 access token user (always carry the access token)
 POST
 endpoint : 127.0.0.1:8000/account/token/
+example jason format :
 {
 	"username" : "diego", 
 	"password" : "informatique"
@@ -87,6 +92,7 @@ endpoint : 127.0.0.1:8000/account/token/
 refresh token
 POST
 endpoint : 127.0.0.1:8000/account/token/refresh/
+example jason format :
 {
     "refresh" : "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ0b2tlbl90eXBlIjoicmVmcmVzaCIsImV4cCI6MTY0MDg4MDI5MSwiaWF0IjoxNjQwNzkzODkxLCJqdGkiOiI2YzZmYTEzMzY3OWM0NDYzYmNjMmNkY2I4ZmIyMDQ2NCIsInVzZXJfaWQiOjV9.thFvUsTe-_Zri2KIVc5CQq0PSI_JO0DD7faZkMIzyFo"
 }
@@ -114,6 +120,7 @@ endpoint : 127.0.0.1:8000/store/ordelines/
 list products + add product to cart 
 GET, POST
 endpoint : 127.0.0.1:8000/store/product/list/
+example jason format :
 {
 	"product_id" : 5,
 	"quantity" : 1
@@ -124,6 +131,7 @@ endpoint : 127.0.0.1:8000/store/product/list/
 product detail + add product to cart 
 GET, PUT
 endpoint : 127.0.0.1:8000/store/product/1/
+example jason format :
 {
     "quantity": 3
 }
@@ -133,7 +141,7 @@ endpoint : 127.0.0.1:8000/store/product/1/
 cart line details (1 cart line) 
 GET, PUT
 endpoint : 127.0.0.1:8000/store/orderline/3/
-
+example jason format :
 {
     "quantity": 1
 }
@@ -155,6 +163,7 @@ GET
 create movie review
 route : 127.0.0.1:8000/store/1/review-create/
 POST
+example jason format :
 {
 	"rating" : 3,
 	"description" : "just ok"   
@@ -165,6 +174,7 @@ POST
 detail review + update + delete
 GET, PUT, DELETE
 endpoint : 127.0.0.1:8000/store/review/2/
+example jason format :
 {
     "rating": 5,
     "description" : "Nice movie"
@@ -181,10 +191,12 @@ endpoint : 127.0.0.1:8000/store/theme/list/
 payment checkout session
 GET, POST
 endpoint : 127.0.0.1:8000/store/create-checkout-session/
+example jason format :
 {
 	"success_url" : "http://127.0.0.1:8000/store/product/list/",
 	"cancel_url" : "http://127.0.0.1:8000/store/order/"
 }
+example of data to test checkout session :
 email : test@gmail.com
 correct card information : 4242 4242 4242 4242     wrong card information : 4000 0000 0000 0002
 date : 12/22
@@ -196,6 +208,7 @@ nom : test
 shipping address details
 GET, POST, PUT, DELETE
 endpoint : 127.0.0.1:8000/store/shipping-address/
+example jason format :
 {
     "address": "Rue du Bonheur 777",
     "city": "Liège",
@@ -208,6 +221,7 @@ endpoint : 127.0.0.1:8000/store/shipping-address/
 update password and email
 GET, PUT
 endpoint : 127.0.0.1:8000/account/update-profile/
+example jason format :
 {
 	"first_name" : "diego",
 	"last_name" : "santiago", 
