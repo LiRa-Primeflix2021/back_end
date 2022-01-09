@@ -110,7 +110,7 @@ class OrderLine(models.Model):
 			return 0 
 
 	def __str__(self):
-		return  str(self.id) + " -  for user : " + str(self.order.order_user) + " -   from order : " + str(self.order)
+		return  str(self.id) + " -  for user : " + str(self.product) + " -   from order : " + str(self.order)
 		return str(self.order) + str(self.orderLine_user) + str(self.order.order_user) + str(self.product) + " : " + str(self.product.price) + "€  * " + str(self.quantity) + " = " + self.get_total_orderLine + " €"
 
 

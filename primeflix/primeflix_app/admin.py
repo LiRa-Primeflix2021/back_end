@@ -8,11 +8,16 @@ from django.contrib import messages
 from django.http import HttpResponseRedirect
 from django.urls import reverse
 
+
+#
+# upload products from csv file 
+# if a movie exists already -> update other fields 
+#
 class CsvImportForm(forms.Form):
     csv_upload = forms.FileField()
 
 class ProductAdmin(admin.ModelAdmin):
-    # list_display = ('title', 'price')
+    list_display = ('title', 'price', 'quantity')
 
     def get_urls(self):
         urls = super().get_urls()

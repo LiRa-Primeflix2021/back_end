@@ -21,7 +21,6 @@ class ProductSerializer(serializers.ModelSerializer):
     class Meta:
         model = Product
         fields = "__all__"
-        # exclude = ['active']
         read_only_fields = ('average_rating', 'number_ratings')
         
     def get_len_title(self, object):
@@ -39,13 +38,13 @@ class ProductSerializer(serializers.ModelSerializer):
         else:
             return value
 
+
 class CategorySerializer(serializers.ModelSerializer):
     products = ProductSerializer(many=True, read_only=True)
         
     class Meta:
         model = Category
         fields = "__all__"
-        # exclude = ('name',)
      
         
 class ThemeSerializer(serializers.ModelSerializer):
@@ -57,23 +56,19 @@ class ThemeSerializer(serializers.ModelSerializer):
 
 
 class OrderLineSerializer(serializers.ModelSerializer):
-    # customer = serializers.StringRelatedField(read_only=True)
     order = serializers.StringRelatedField(read_only=True)
 
     class Meta:
         model = OrderLine
         fields = "__all__"
-        # exclude = ('orderLine_user',)
     
 
 class OrderSerializer(serializers.ModelSerializer):
     order_lines = OrderLineSerializer(many=True, read_only=True)
-    # customer = serializers.StringRelatedField(read_only=True)
         
     class Meta:
         model = Order
         fields = "__all__"   
-        # exclude = ('customer',)
     
 class ShippingAddressSerializer(serializers.ModelSerializer):
     shippingAddress_user = serializers.StringRelatedField(read_only=True)
@@ -81,17 +76,12 @@ class ShippingAddressSerializer(serializers.ModelSerializer):
     class Meta:
         model = ShippingAddress
         fields = "__all__"
-        # exclude = ('customer',)
         
 
 
 
-# class CustomerSerializer(serializers.ModelSerializer):
-#     # product = ProductSerializer(many=True, read_only=True)
-        
-#     class Meta:
-#         model = Customer
-#         fields = "__all__"
+
+
 
 
 
@@ -133,3 +123,16 @@ class ShippingAddressSerializer(serializers.ModelSerializer):
 #     #         return value
     
     
+    
+    
+    
+    
+    
+# class CustomerSerializer(serializers.ModelSerializer):
+#     # product = ProductSerializer(many=True, read_only=True)
+        
+#     class Meta:
+#         model = Customer
+#         fields = "__all__"
+
+   

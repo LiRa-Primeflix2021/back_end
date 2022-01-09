@@ -233,14 +233,46 @@ example jason format :
 
 ********************************************************************
 
-find orders by title
+find orders by title 
 GET
 endpoint : 127.0.0.1:8000/store/orders-title/Titanic/
 
 ********************************************************************
 
-find orders by title
+find orders by year
 GET
-endpoint : 127.0.0.1:8000/store/orders-year/2021/	
+endpoint : 127.0.0.1:8000/store/orders-year/2019/	
+
 
 ********************************************************************
+
+find order lines by category
+GET
+endpoint : 127.0.0.1:8000/store/orderlines-category/Movie/
+
+********************************************************************
+
+find product by title
+GET
+endpoint : 127.0.0.1:8000/store/movie-title/Titanic/
+
+********************************************************************
+
+find products by Theme
+GET
+endpoint : 127.0.0.1:8000/store/movies-theme/Drama/
+
+********************************************************************
+
+find products by Category and by Theme
+GET
+endpoint : 127.0.0.1:8000/store/movies-category-theme/Movie/Drama/
+
+********************************************************************
+
+
+
+
+
+
+

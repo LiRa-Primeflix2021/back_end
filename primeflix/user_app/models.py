@@ -5,6 +5,9 @@ from rest_framework import serializers
 from rest_framework.authtoken.models import Token
 from primeflix_app.models import  User, Order
 
+#
+# a new order is created if a user has been created
+#
 @receiver(post_save, sender=settings.AUTH_USER_MODEL)
 def create_auth_token(sender, instance=None, created=False, **kwargs):
     

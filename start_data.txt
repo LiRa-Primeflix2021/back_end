@@ -1,3 +1,6 @@
+primeflix_env\scripts\activate
+cd primeflix
+
 py manage.py makemigrations
 py manage.py migrate
 
@@ -11,7 +14,7 @@ y
 py manage.py shell
 
 from primeflix_app.models import User, Category, Theme, Product, Review, Order, OrderLine, ShippingAddress
-
+import datetime
 
 
 u2 = User(username="frank", email="frank@gmail.com", password="frank", is_superuser=False)
@@ -29,15 +32,15 @@ u5.save()
 User.objects.all()
 
 
-sa1 = ShippingAddress(address="Rue des Guillemins 1", city="Liège", zipcode="4000", shippingAddress_user=User.objects.get(id=1))
+sa1 = ShippingAddress(street="Rue des Guillemins 1", city="Liège", zipcode="4000", shippingAddress_user=User.objects.get(id=1))
 sa1.save()
-sa2 = ShippingAddress(address="Rue Louvrex 2", city="Liège", zipcode="4000", shippingAddress_user=User.objects.get(id=2))
+sa2 = ShippingAddress(street="Rue Louvrex 2", city="Liège", zipcode="4000", shippingAddress_user=User.objects.get(id=2))
 sa2.save()
-sa3 = ShippingAddress(address="Rue de Fétinne 3", city="Liège", zipcode="4020", shippingAddress_user=User.objects.get(id=3))
+sa3 = ShippingAddress(street="Rue de Fétinne 3", city="Liège", zipcode="4020", shippingAddress_user=User.objects.get(id=3))
 sa3.save()
-sa4 = ShippingAddress(address="Rue Saint-Laurent 4", city="Liège", zipcode="4000", shippingAddress_user=User.objects.get(id=4))
+sa4 = ShippingAddress(street="Rue Saint-Laurent 4", city="Liège", zipcode="4000", shippingAddress_user=User.objects.get(id=4))
 sa4.save()
-sa5 = ShippingAddress(address="Rue Saint-Léonard 5", city="Liège", zipcode="4000", shippingAddress_user=User.objects.get(id=5))
+sa5 = ShippingAddress(street="Rue Saint-Léonard 5", city="Liège", zipcode="4000", shippingAddress_user=User.objects.get(id=5))
 sa5.save()
 
 
@@ -108,8 +111,6 @@ Review.objects.all()
 
 
 
-
-
 ol1 = OrderLine(quantity=11, product=Product.objects.get(id=1), order=Order.objects.get(id=5))
 ol1.save()
 ol2 = OrderLine(quantity=12, product=Product.objects.get(id=2), order=Order.objects.get(id=5))
@@ -120,33 +121,32 @@ OrderLine.objects.all()
 
 order_setter = Order.objects.get(id=5)
 order_setter.order_paid = True
+order_setter.date_ordered = datetime.datetime(2019,3,17)
 order_setter.save()
 order_new = Order(order_user=User.objects.get(id=5))
 order_new.save()
 
-ol1 = OrderLine(quantity=10, product=Product.objects.get(id=1), order=Order.objects.get(id=6))
-ol1.save()
-ol2 = OrderLine(quantity=10, product=Product.objects.get(id=5), order=Order.objects.get(id=6))
-ol2.save()
-ol3 = OrderLine(quantity=10, product=Product.objects.get(id=3), order=Order.objects.get(id=6))
-ol3.save()
+ol4 = OrderLine(quantity=10, product=Product.objects.get(id=1), order=Order.objects.get(id=6))
+ol4.save()
+ol5 = OrderLine(quantity=10, product=Product.objects.get(id=5), order=Order.objects.get(id=6))
+ol5.save()
+ol6 = OrderLine(quantity=10, product=Product.objects.get(id=3), order=Order.objects.get(id=6))
+ol6.save()
 OrderLine.objects.all()
 
 order_setter = Order.objects.get(id=6)
 order_setter.order_paid = True
+order_setter.date_ordered = datetime.datetime(2019,9,13)
 order_setter.save()
 order_new = Order(order_user=User.objects.get(id=5))
 order_new.save()
 
-
-
-
-ol4 = OrderLine(quantity=21, product=Product.objects.get(id=4), order=Order.objects.get(id=4))
-ol4.save()
-ol5 = OrderLine(quantity=32, product=Product.objects.get(id=3), order=Order.objects.get(id=4))
-ol5.save()
-ol5 = OrderLine(quantity=43, product=Product.objects.get(id=2), order=Order.objects.get(id=4))
-ol5.save()
+ol7 = OrderLine(quantity=21, product=Product.objects.get(id=4), order=Order.objects.get(id=4))
+ol7.save()
+ol8 = OrderLine(quantity=32, product=Product.objects.get(id=3), order=Order.objects.get(id=4))
+ol8.save()
+ol9 = OrderLine(quantity=43, product=Product.objects.get(id=2), order=Order.objects.get(id=4))
+ol9.save()
 OrderLine.objects.all()
 
 

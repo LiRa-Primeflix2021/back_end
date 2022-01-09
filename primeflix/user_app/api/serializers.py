@@ -47,7 +47,6 @@ class UpdateProfileSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError({'error' : 'passwords are different'})
         
         temp_user = User.objects.get(username=self.validated_data['username'])
-        print(temp_user.password)
         temp_user.first_name = self.validated_data['first_name']
         temp_user.last_name = self.validated_data['last_name']
         temp_user.email = self.validated_data['email']

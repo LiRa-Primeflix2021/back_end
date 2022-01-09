@@ -1,5 +1,5 @@
 from django.urls import path
-from primeflix_app.api.views import FindOrdersbyYear, FindOrdersbyTitle, stripe_webhook, CreateCheckoutSessionView, ThemeList, ProductListAdd, ProductDetails, ReviewList, ReviewCreate, ReviewDetails, OrdersPaid, OrderDetails, OrderLines, OrderLineDetails, ShippingAddressDetails
+from primeflix_app.api.views import FindProductsByCategoryAndTheme, FindProductByTitle, FindProductsByTheme, FindOrdersByYear, FindOrdersByTitle, FindOrderLinesByCategory, stripe_webhook, CreateCheckoutSessionView, ThemeList, ProductListAdd, ProductDetails, ReviewList, ReviewCreate, ReviewDetails, OrdersPaid, OrderDetails, OrderLines, OrderLineDetails, ShippingAddressDetails
 
 urlpatterns = [ 
     path('theme/list/', ThemeList.as_view(), name='theme-list'),  
@@ -10,13 +10,17 @@ urlpatterns = [
     path('product/<int:pk>/reviews/', ReviewList.as_view(), name="review-list"),
     path('<int:pk>/review-create/', ReviewCreate.as_view(), name="review-create"),
     path('review/<int:pk>/', ReviewDetails.as_view(), name="review-details"),  
+    path('movie-title/<str:title>/', FindProductByTitle.as_view(), name="movie-title"),
+    path('movies-theme/<str:theme>/', FindProductsByTheme.as_view(), name="movies-theme"),   
+    path('movies-category-theme/<str:category>/<str:theme>/', FindProductsByCategoryAndTheme.as_view(), name="movies-category-theme"),   
     
     path('orders-paid/', OrdersPaid.as_view(), name="orders-paid"),  
     path('order/', OrderDetails.as_view(), name="order"),
     path('orderlines/', OrderLines.as_view(), name="orderlines"),
     path('orderline/<int:pk>/', OrderLineDetails.as_view(), name="orderline-details"),
-    path('orders-title/<str:title>/', FindOrdersbyTitle.as_view(), name="movies-paid"),
-    path('orders-year/<str:year>/', FindOrdersbyYear.as_view(), name="orders-year"),
+    path('orders-title/<str:title>/', FindOrdersByTitle.as_view(), name="movies-paid"),
+    path('orders-year/<str:year>/', FindOrdersByYear.as_view(), name="orders-year"),
+    path('orderlines-category/<str:category>/', FindOrderLinesByCategory.as_view(), name="orderlines-category"),
     
     path('shipping-address/', ShippingAddressDetails.as_view(), name='shipping_address'),
 

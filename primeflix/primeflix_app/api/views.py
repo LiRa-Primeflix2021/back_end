@@ -11,7 +11,7 @@ from rest_framework import generics
 from rest_framework.exceptions import APIException, ValidationError
 from rest_framework import status
 from rest_framework.permissions import IsAuthenticated, IsAuthenticatedOrReadOnly
-from primeflix_app.models import Theme, Product, Review, Order, OrderLine, ShippingAddress
+from primeflix_app.models import Category, Theme, Product, Review, Order, OrderLine, ShippingAddress
 from primeflix_app.api.serializers import ThemeSerializer, ProductSerializer, ReviewSerializer, OrderSerializer, OrderLineSerializer, ShippingAddressSerializer
 from primeflix_app.api.permissions import IsReviewUserOrReadOnly, IsOrderLineUser, IsOrderUser
 from django.dispatch import receiver
@@ -188,7 +188,7 @@ class ReviewList(generics.ListAPIView):
         
 # 
 # only one review from an user for a product
-# update rating after a new review
+# update average rating 
 #
 class ReviewCreate(generics.CreateAPIView):
     serializer_class = ReviewSerializer
@@ -228,7 +228,7 @@ class ReviewCreate(generics.CreateAPIView):
   
 # 
 # only one review from an user for a product
-# update rating after updating or deleting a review
+# update average rating after updating or deleting a review
 #   
 class ReviewDetails(generics.RetrieveUpdateDestroyAPIView):
     queryset = Review.objects.all()
@@ -309,9 +309,6 @@ class OrderDetails(APIView):
             
             serializer = OrderSerializer(temp_order)
             
-            
-            
-            
             return Response(serializer.data)     
 
 
@@ -336,7 +333,7 @@ class OrderLines(generics.ListCreateAPIView):
             
 
 # 
-# 1 cart line details + update quantity (only available if cart line is not paid)  
+# 1 cart line details + update quantity (only available if cart line is not paid)   
 # 
 class OrderLineDetails(generics.RetrieveUpdateDestroyAPIView):
     permission_classes = [IsOrderLineUser]
@@ -387,39 +384,7 @@ class OrderLineDetails(generics.RetrieveUpdateDestroyAPIView):
         else:
             raise APIException("Denied")
 
-
-
-
-
-#
-# 
-#  
-
-class FindOrdersbyTitle(generics.ListAPIView):
-    permission_classes = [IsOrderUser]
-    serializer_class = OrderSerializer
-
-    def get_queryset(self):
-        temp_title = self.kwargs['title']
-        temp_product = Product.objects.get(title=temp_title)
-        queryset_orderLines = OrderLine.objects.filter(product=temp_product, order__order_user=self.request.user)
-        queryset_orders = []
-        for item in queryset_orderLines:
-            queryset_orders.append(item.order)
-        return queryset_orders
-
-
-class FindOrdersbyYear(generics.ListAPIView):
-    permission_classes = [IsOrderUser]
-    serializer_class = OrderSerializer
-
-    def get_queryset(self):
-        temp_year = self.kwargs['year']
-        first_date = datetime.date(int(temp_year), 1, 1)
-        last_date = datetime.date(int(temp_year), 12, 31)
-        return Order.objects.filter(date_ordered__range = (first_date, last_date), order_user=self.request.user, order_paid=True)
-    
-    
+        
 
 # //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 # products management (many=True :> ProductSerializer needs to consult multiple objects in the query set and map them)
@@ -427,7 +392,7 @@ class FindOrdersbyYear(generics.ListAPIView):
 
 # 
 # product list + add one specific product to cart (quantity limited to the available stock)
-# a check is done if the product is already in cart
+# a check is done if the product is already in cart (update or create order line)
 #
 class ProductListAdd(APIView):
     permission_classes = [IsAuthenticatedOrReadOnly]
@@ -581,9 +546,93 @@ class ProductDetails(APIView):
     
         else:
             raise APIException("Order paid")
-               
- 
+        
 
+
+# //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+# filters
+# //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+                
+#
+# Search methods on orders
+#  
+class FindOrdersByTitle(generics.ListAPIView):
+    permission_classes = [IsOrderUser]
+    serializer_class = OrderSerializer
+
+    def get_queryset(self):
+        temp_title = self.kwargs['title']
+        temp_product = Product.objects.get(title=temp_title)
+        queryset_orderLines = OrderLine.objects.filter(product=temp_product, order__order_user=self.request.user)
+        queryset_orders = []
+        for item in queryset_orderLines:
+            queryset_orders.append(item.order)
+        return queryset_orders
+
+
+class FindOrdersByYear(generics.ListAPIView):
+    permission_classes = [IsOrderUser]
+    serializer_class = OrderSerializer
+
+    def get_queryset(self):
+        temp_year = self.kwargs['year']
+        first_date = datetime.date(int(temp_year), 1, 1)
+        last_date = datetime.date(int(temp_year), 12, 31)
+        return Order.objects.filter(date_ordered__range = (first_date, last_date), order_user=self.request.user, order_paid=True)
+ 
+   
+
+#
+# Search method on orderlines
+#  
+class FindOrderLinesByCategory(generics.ListAPIView):
+    permission_classes = [IsOrderUser]
+    serializer_class = OrderLineSerializer
+
+    def get_queryset(self):
+        temp_category_name = self.kwargs['category']
+        temp_category = Category.objects.get(name=temp_category_name)
+        queryset_orderLines = OrderLine.objects.filter(product__category=temp_category, order__order_user=self.request.user)
+        return queryset_orderLines
+       
+   
+               
+#
+# Search methods on products 
+#      
+class FindProductByTitle(APIView):
+    
+    def get(self, request, title):
+        try:
+            temp_title = self.kwargs['title']
+            product = Product.objects.get(title=temp_title)
+        except Product.DoesNotExist:
+            return Response('Error : Film doesn\'t exist in database', status=status.HTTP_404_NOT_FOUND)
+        
+        serializer = ProductSerializer(product)
+        return Response(serializer.data) 
+
+
+class FindProductsByTheme(generics.ListAPIView):
+    serializer_class = ProductSerializer
+
+    def get_queryset(self):
+        temp_name_theme = Theme.objects.get(name=self.kwargs['theme'])
+        queryset_products = Product.objects.filter(theme=temp_name_theme)
+        return queryset_products
+
+
+class FindProductsByCategoryAndTheme(generics.ListAPIView):
+    serializer_class = ProductSerializer
+    
+    def get_queryset(self):
+        temp_name_category= Category.objects.get(name=self.kwargs['category'])
+        temp_name_theme = Theme.objects.get(name=self.kwargs['theme'])
+        queryset_products = Product.objects.filter(category=temp_name_category, theme=temp_name_theme)
+        return queryset_products
+
+ 
+    
 # //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 # Theme list
 # //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -637,6 +686,18 @@ def refresh_ratings():
                 p.average_rating = average_rating 
                 p.save()
                 
+
+# //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+
+def add_numbers():
+    l = [1,2,3]
+    return l
+
+def add_test():
+    d = {'voiture' : 'golff', 'fille' : 'claudette'}
+    return d
+
                         
 # def set_order_init():  
 #     customers = Customer.objects.all()
@@ -728,14 +789,6 @@ def refresh_ratings():
 
 
 
-
-def add_numbers():
-    l = [1,2,3]
-    return l
-
-def add_test():
-    d = {'voiture' : 'golff', 'fille' : 'claudette'}
-    return d
     
 # def index(request):
 #     message = add_numbers()
